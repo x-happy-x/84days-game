@@ -1,7 +1,5 @@
 package ru.happy.game.adventuredog;
 
-import java.util.Map;
-
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -9,15 +7,21 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetDescriptor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Interpolation;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.SerializationException;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 import ru.happy.game.adventuredog.Anim.ScreenAnim;
 import ru.happy.game.adventuredog.Obj.GameWorld;
@@ -34,7 +38,6 @@ import ru.happy.game.adventuredog.UI.Layout;
 
 import static ru.happy.game.adventuredog.Tools.AssetsTool.encodePlatform;
 import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
-import static ru.happy.game.adventuredog.Tools.AssetsTool.isAndroid;
 
 public class MainGDX extends Game {
     // Параметры экрана
@@ -59,30 +62,70 @@ public class MainGDX extends Game {
     public Interpolation interpolation = Interpolation.exp5; // Вид анимации
     public Map<String, String> property; // Параметры уровней
     private boolean loaded, auth, error; // Статус загрузки игры
-    float progressNow; // Прогресс загрузки
+    public static Logger logger;
+    private final float sync_time = 3 * 60; // Время синхронизации (сек)
+    private final String[] states = new String[]{"Проверка обновлений",            // Названия стадий
+            "Загрузка дополнительный файлов",
+            "Распаковка скачанных файлов",
+            "Авторизация",
+            "Запуск игры"};
+    Texture bgTexture;
+    Color statColor = Color.valueOf("#ffffff"), statStroke = Color.valueOf("#000000");
+    float[] olds;
     private int stateType; // Стадия загрузки
     private String state; // Название текущей стадии
-    private final String[] states = new String[]{"Проверка обновлений",            // Названия стадий
-                                          "Загрузка дополнительный файлов",
-                                          "Распаковка скачанных файлов",
-                                          "Авторизация",
-                                          "Запуск игры"};
+    private float sync_delta; // Отсчёт времени синхронизации
 
-    // Конструкторы игры
-    public MainGDX() {}
     public MainGDX(ApplicationBundle bundle) {
         view = bundle.getView();
     }
 
+    private float progressNow; // Прогресс загрузки
+
+    // Конструкторы игры
+    public MainGDX() {
+    }
+
+    public static void enableLogger(String text) {
+        logger = Logger.getLogger("MyLog");
+        FileHandler fh;
+        try {
+            fh = new FileHandler(getFile(text, false).getAbsolutePath());
+            logger.addHandler(fh);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fh.setFormatter(formatter);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void write(String text) {
+        logger.info(text);
+    }
+
     // Добавить слушатель при изменение размера экрана (при показе и скрытии клавиатуры на андроид)
-    public void addSizeChangeListener(SizeChangeListener listener){
+    public void addSizeChangeListener(SizeChangeListener listener) {
         if (view == null) return;
         view.clear();
         view.addListener(listener);
     }
 
     @Override
+    public void setScreen(Screen screen) {
+        ScreenAnim.setOpen();
+        ScreenAnim.setState(true);
+        super.setScreen(screen);
+    }
+
+    private void waitState(int state) {
+        while (true) {
+            if (getProgress(state) == 2) break;
+        }
+    }
+
+    @Override
     public void create() {
+        enableLogger("log");
         // Установка дефолтных параметров
         HEIGHT = (int) ((float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth() * WIDTH);
         clearBg = new Color(0, 0, 0, 1);
@@ -100,6 +143,7 @@ public class MainGDX extends Game {
         world.fontSetting();
 
         DISPLAY_CUTOUT_MODE = world.prefs.getInteger("cutoutMode", 0);
+        world.resize(WIDTH, HEIGHT);
 
         // Настройка камеры
         getBatch().setProjectionMatrix(world.getCamera().combined);
@@ -111,7 +155,8 @@ public class MainGDX extends Game {
         // Настройка фона
         bg = new Sprite();
         bg.setBounds(0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
-        bg.setRegion(new Texture("bg.jpg"));
+        bgTexture = new Texture("bg.jpg");
+        bg.setRegion(bgTexture);
         float w = bg.getRegionWidth(), h = bg.getRegionHeight();
         if ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() > w / h) {
             bg.setRegion(0, 0, (int) w, (int) ((float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth() * w));
@@ -125,20 +170,6 @@ public class MainGDX extends Game {
         stateType = 0;
         state = states[stateType];
         load();
-    }
-
-
-    @Override
-    public void setScreen(Screen screen) {
-        ScreenAnim.setOpen();
-        ScreenAnim.setState(true);
-        super.setScreen(screen);
-    }
-
-    private void waitState(int state) {
-        while (true) {
-            if (getProgress(state) == 2) break;
-        }
     }
 
     @Override
@@ -182,15 +213,53 @@ public class MainGDX extends Game {
             } else {
                 ScreenAnim.load();
                 loaded = true;
-                bg.getTexture().dispose();
+                bgTexture.dispose();
                 if (auth) LevelSwitcher.setLevel(this, 0);
                 else setScreen(new Auth(this));
             }
         }
+        drawStat();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        if (world != null) world.resize(width, height);
+        super.resize(width, height);
+        if (!loaded) {
+            bg.setRegion(bgTexture);
+            float w = bg.getRegionWidth(), h = bg.getRegionHeight();
+            if ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() > w / h) {
+                bg.setRegion(0, 0, (int) w, (int) ((float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth() * w));
+                bg.setRegion(0, (int) ((h - bg.getRegionHeight()) / 2f), bg.getRegionWidth(), bg.getRegionHeight());
+            } else {
+                bg.setRegion(0, 0, (int) ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() * h), (int) h);
+                bg.setRegion((int) ((w - bg.getRegionWidth()) / 2f), 0, bg.getRegionWidth(), bg.getRegionHeight());
+            }
+        }
+    }
+
+    void drawStat() {
+        draw();
+        if (loaded) {
+            sync_delta += Gdx.graphics.getDeltaTime();
+            if (sync_delta >= sync_time) {
+                world.startSync();
+                sync_delta = 0f;
+            }
+        }
+        float H = Gdx.graphics.getHeight(), W = Gdx.graphics.getWidth(), D = Gdx.graphics.getDensity(), F = Gdx.graphics.getFramesPerSecond();
+        if (olds == null || olds[0] != HEIGHT || olds[1] != WIDTH || olds[2] != H || olds[3] != W || olds[4] != D) {
+            olds = new float[]{HEIGHT, WIDTH, H, W, D};
+            write("GameSize: " + WIDTH + "x" + HEIGHT + " Screen: " + W + "x" + H + " DPI: " + D + " FPS: " + F);
+        }
+        world.setText((!world.isSynced() ? "НЕ " : "") + "СИНХРАНИЗИРОВАНО", 0.5f, MainGDX.WIDTH / 2f, MainGDX.HEIGHT - 5, statColor, statStroke, true, false, GameWorld.FONTS.SMALL);
+        world.setText("GameSize: " + WIDTH + "x" + HEIGHT + " Screen: " + W + "x" + H + " DPI: " + D + " FPS: " + F, 0.8f, MainGDX.WIDTH / 2f, 15, statColor, statStroke, true, false, GameWorld.FONTS.SMALL);
+        end();
     }
 
     @Override
     public void dispose() {
+        getFile("log").copyTo(Gdx.files.external("game_log.txt"));
         world.startSync();
         world.dispose();
         super.dispose();
@@ -340,13 +409,12 @@ public class MainGDX extends Game {
                 assets.setLevel(-1);
                 assets.bg = new AssetDescriptor<>("menu/reg_bg.png", Texture.class);
                 assets.load();
+            } else {
+                // Синхронизация с миром
+                user.setInWorld(world.prefs);
+                world.setUser(user);
             }
 
-            // Синхронизация с миром
-            if (world.prefs.getBoolean("sync", true)) {
-                user.setInWorld(world.prefs);
-            }
-            world.setUser(user);
             stateType++;
         });
 

@@ -10,7 +10,7 @@ public class LoadedMusic {
 
     public static class Music {
         public float len;
-        public int id, year, type, bit;
+        public int success, id, year, type, bit;
         public String title, path, artist, image, cut;
     }
 }

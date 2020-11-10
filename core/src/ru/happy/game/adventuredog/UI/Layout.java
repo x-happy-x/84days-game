@@ -25,7 +25,8 @@ public class Layout {
     Rectangle pb = new Rectangle(), pause = new Rectangle();
     float timeDelta, animDelta = 2, pbMargin1 = 10, pbMargin2 = 10;
 
-    public Layout() {}
+    public Layout() {
+    }
 
     // Смена цветов градиента
     public void colorize() {
@@ -131,22 +132,21 @@ public class Layout {
     public Rectangle[] drawEnd(MainGDX game, String[] menuList, String title, float progress, Interpolation interpolation, boolean win, int selected, Color accent, Color bg) {
         String[] newMenuList;
         String _title_ = win ? "УРОВЕНЬ ПРОЙДЕН" : "УРОВЕНЬ ПРОВАЛЕН";
-        int select = 0;
+        int select;
         if (win) {
             newMenuList = menuList;
             select = selected;
         } else {
             newMenuList = new String[menuList.length - 1];
             select = selected - 1;
-            for (int i = 0; i < newMenuList.length; i++) {
-                newMenuList[i] = menuList[i + 1];
-            }
+            if (newMenuList.length >= 0)
+                System.arraycopy(menuList, 1, newMenuList, 0, newMenuList.length);
         }
         Rectangle[] m = drawMenu(game, _title_, newMenuList, progress, interpolation, accent, bg, select, true);
         if (win) {
             game.world.setText(title, 1f, MainGDX.WIDTH / 2f - game.world.getSizes()[0] / 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
             if (game.world.getBonus) {
-                game.world.setText("+1 ПОДСКАЗКА", 1f, MainGDX.WIDTH / 2f + game.world.getTextSize(title, 1, GameWorld.FONTS.MEDIAN)[0] / 2f - game.world.getTextSize("+1 ПОДСКАЗКА", 1, GameWorld.FONTS.SMALL)[0], interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
+                game.world.setText("+1 ПОДСКАЗКА", 1f, MainGDX.WIDTH / 2f + game.world.getTextSize(_title_, 1, GameWorld.FONTS.MEDIAN)[0] / 2f - game.world.getTextSize("+1 ПОДСКАЗКА", 1, GameWorld.FONTS.SMALL)[0], interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
             }
         }
         game.end();
@@ -155,9 +155,12 @@ public class Layout {
 
     public Rectangle[] drawPause(MainGDX game, String[] menuList, float progress, Interpolation interpolation, int score, int good, int all, int selected, Color accent, Color bg) {
         Rectangle[] m = drawMenu(game, "ПАУЗА", menuList, progress, interpolation, accent, bg, selected, true);
-        if (score >= 0)game.world.setText("УГАДАНО: " + score, 1f, MainGDX.WIDTH / 2f - game.world.getTextSize("ПАУЗАПАУЗАПАУЗАПАУЗА", 1, GameWorld.FONTS.MEDIAN)[0] / 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
-        if (good >= 0) game.world.setText("ХОРОШО: " + good, 1f, MainGDX.WIDTH / 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, true, GameWorld.FONTS.SMALL);
-        if (all >= 0)  game.world.setText("ОСТАЛОСЬ: " + all, 1f, MainGDX.WIDTH / 2f + game.world.getTextSize("ПАУЗАПАУЗАПАУЗАПАУЗА", 1, GameWorld.FONTS.MEDIAN)[0] / 2f - game.world.getTextSize("ОСТАЛОСЬ: " + all, 1, GameWorld.FONTS.SMALL)[0], interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
+        if (score >= 0)
+            game.world.setText("УГАДАНО: " + score, 1f, MainGDX.WIDTH / 2f - game.world.getTextSize("ПАУЗА", 1, GameWorld.FONTS.MEDIAN)[0] * 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
+        if (good >= 0)
+            game.world.setText("ХОРОШО: " + good, 1f, MainGDX.WIDTH / 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, true, GameWorld.FONTS.SMALL);
+        if (all >= 0)
+            game.world.setText("ОСТАЛОСЬ: " + all, 1f, MainGDX.WIDTH / 2f + game.world.getTextSize("ПАУЗА", 1, GameWorld.FONTS.MEDIAN)[0] * 2f - game.world.getTextSize("ОСТАЛОСЬ: " + all, 1, GameWorld.FONTS.SMALL)[0], interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f - 30, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f - 30, progress), Color.WHITE, false, true, GameWorld.FONTS.SMALL);
         game.end();
         return m;
     }
@@ -190,10 +193,10 @@ public class Layout {
         drawRectangle(game.renderer, accent, 0, interpolation.apply(MainGDX.HEIGHT, MainGDX.HEIGHT * 5f / 6.5f, progress), MainGDX.WIDTH, MainGDX.HEIGHT / 6f);
         game.endShape();
         game.draw();
-        String winText = title;
-        game.world.setText(winText, 1f, MainGDX.WIDTH / 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f, progress), Color.WHITE, true, GameWorld.FONTS.MEDIAN);
+        game.world.setText(title, 1f, MainGDX.WIDTH / 2f, interpolation.apply(MainGDX.HEIGHT + MainGDX.HEIGHT / 12f, MainGDX.HEIGHT * 5f / 6.5f + MainGDX.HEIGHT / 12f, progress), Color.WHITE, true, GameWorld.FONTS.MEDIAN);
         if (!addtxt) game.end();
         bg.add(0.1f, 0.1f, 0.1f, 0);
+        if (!game.world.prefs.getBoolean("sync", false)) game.world.startSync();
         return rects;
     }
 

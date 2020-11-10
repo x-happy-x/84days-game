@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.Objects;
 
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -21,6 +20,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import ru.happy.game.adventuredog.MainGDX;
 
 public class NetTask {
 
@@ -44,9 +44,7 @@ public class NetTask {
     // Загрузить файл
     public void loadFile(String url, String path) {
         if (!isAlive()) {
-            task = new Thread(() -> {
-                onPostExecute(_GET(site + url, new File(path)));
-            });
+            task = new Thread(() -> onPostExecute(_GET(site + url, new File(path))));
             task.start();
             hardRun = false;
         }
@@ -114,16 +112,12 @@ public class NetTask {
                 sUrl = sUrl.replace("{" + i + "}", params[i]);
             }
         }
-        // Создание папок для выходного файла, при их отсутствии
-        if (path != null && !path.getParentFile().exists()) {
-            path.getParentFile().mkdirs();
-        }
         try {
             // Создание ссылки
             URL url = new URL(sUrl);
             // Если возможно получить размер файла
             int fileLength = 0;
-            if (path != null) {
+            if (path != null && (path.getParentFile().exists() || path.getParentFile().mkdirs())) {
                 URLConnection conn = url.openConnection();
                 conn.connect();
                 fileLength = conn.getContentLength();
@@ -173,10 +167,9 @@ public class NetTask {
             for (int i = 0; i < params.length; i++)
                 httpBuilder.addQueryParameter(params[i], params[++i]);
         Request request = new Request.Builder().url(httpBuilder.build()).build();
-        System.out.println(request.toString());
-        Response response = null;
+        MainGDX.write(request.toString());
         try {
-            response = httpClient.newCall(request).execute();
+            Response response = httpClient.newCall(request).execute();
             result = response.body().string();
             return true;
         } catch (IOException e) {
@@ -223,7 +216,7 @@ public class NetTask {
 
     // Метод после выполнения запроса
     private void onPostExecute(boolean result) {
-        System.out.println(this.result);
+        MainGDX.write(this.result);
         if (listener != null) {
             if (!result) listener.onDownloadFailure(this.result);
             else listener.onDownloadComplete(this.result);

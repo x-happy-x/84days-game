@@ -22,12 +22,15 @@ public class TextEditor extends Button {
     public TextEditor(String hint, TextureRegion region, TextureRegion ic, GameWorld world, Color color) {
         this(hint, region, ic, world, color, Color.GRAY, null);
     }
+
     public TextEditor(String hint, TextureRegion region, TextureRegion ic, GameWorld world, Color color, Action action) {
         this(hint, region, ic, world, color, Color.GRAY, action);
     }
+
     public TextEditor(String hint, TextureRegion region, TextureRegion ic, GameWorld world, Color color, Color hintColor) {
         this(hint, region, ic, world, color, hintColor, null);
     }
+
     public TextEditor(String hint, TextureRegion region, TextureRegion ic, GameWorld world, Color color, Color hintColor, Action action) {
         super("", region, world, color);
         this.text = "";
@@ -41,57 +44,60 @@ public class TextEditor extends Button {
         this.action = action;
     }
 
-    // Интерфейс слушателя
-    public interface Action extends Button.Action {
-        void isInput(String text);
+    // Получить слушатель действий
+    @Override
+    public Action getAction() {
+        return action;
     }
 
     // Установить слушатель действий
     public void setAction(Action action) {
         this.action = action;
     }
+
+    // Текст редактируется
+    public boolean isEdit() {
+        return edit;
+    }
+
     // Установить значение редактирования
     public void setEdit(boolean edit) {
         this.edit = edit;
     }
+
+    // Правильное ли значение
+    public boolean isDone() {
+        return done;
+    }
+
     // Установить значение правильности
     public void setDone(boolean done) {
         this.done = done;
         this.error = false;
     }
+
+    // Есть ли ошибка
+    public boolean isError() {
+        return error;
+    }
+
     // Установить значение наличия ошибки
     public void setError(boolean error) {
         this.error = error;
         this.done = false;
     }
+
+    // Загружается ли
+    public boolean isLoad() {
+        return load;
+    }
+
     // Установить значение загрузки
     public void setLoad(boolean load) {
         this.load = load;
         this.done = false;
         this.error = false;
         rotate = 360f;
-    }
-
-    // Получить слушатель действий
-    @Override
-    public Action getAction() {
-        return action;
-    }
-    // Текст редактируется
-    public boolean isEdit() {
-        return edit;
-    }
-    // Правильное ли значение
-    public boolean isDone() {
-        return done;
-    }
-    // Есть ли ошибка
-    public boolean isError() {
-        return error;
-    }
-    // Загружается ли
-    public boolean isLoad() {
-        return load;
     }
 
     // Изменить текст
@@ -109,19 +115,23 @@ public class TextEditor extends Button {
         }
         this.text = text;
     }
+
     // Получить текст
     public String getText() {
         return text;
     }
+
     // Изменить подсказку
     public void setHint(String text, MainGDX game) {
         game.world.getFont(GameWorld.FONTS.SMEDIAN).setColor(hintColor);
         hint.setText(game.world.getFont(GameWorld.FONTS.SMEDIAN), text);
     }
+
     // Установить максимальную длину
     public void setMaxLength(int len) {
         maxLen = len;
     }
+
     // Установить допустимые символов
     public void setCharset(String charset) {
         if (charset.equals(""))
@@ -129,6 +139,7 @@ public class TextEditor extends Button {
         else
             this.charset = charset;
     }
+
     // Установить маску
     public void setMask(String mask) {
         this.mask = mask;
@@ -137,6 +148,7 @@ public class TextEditor extends Button {
             if (s.equals("_")) i++;
         setMaxLength(i);
     }
+
     // Добавить символ
     public void add(char character, MainGDX game) {
         if (text.length() < maxLen && charset.contains(character + "")) {
@@ -144,6 +156,7 @@ public class TextEditor extends Button {
             if (action != null) action.isInput(text);
         }
     }
+
     // Удалить последний символ
     public void removeLast(MainGDX game) {
         if (text.length() > 0) {
@@ -151,12 +164,14 @@ public class TextEditor extends Button {
             if (action != null) action.isInput(text);
         }
     }
+
     // Добавить иконку
     public void addIcon(TextureRegion done, TextureRegion err, TextureRegion load) {
         icDone = done;
         icError = err;
         icLoad = load;
     }
+
     // Рисование на экране
     @Override
     public void draw(MainGDX game, float _delta_) {
@@ -173,5 +188,10 @@ public class TextEditor extends Button {
         }
         if (text.length() == 0 && mask.length() == 0)
             game.world.setText(hint, drawing.x + drawing.width / 2f, drawing.y + drawing.height / 2f, true, true, GameWorld.FONTS.SMEDIAN);
+    }
+
+    // Интерфейс слушателя
+    public interface Action extends Button.Action {
+        void isInput(String text);
     }
 }

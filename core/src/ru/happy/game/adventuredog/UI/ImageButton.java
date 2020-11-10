@@ -8,13 +8,13 @@ import ru.happy.game.adventuredog.Obj.GameWorld;
 
 public class ImageButton extends Button {
 
-    TextureRegion icon, icon2;
     public ALIGN alignIV, alignIH, alignIV2, alignIH2;
+    TextureRegion icon, icon2;
     float offsetIX, offsetIY, iconW, iconH, offsetIX2, offsetIY2, iconW2, iconH2;
 
     private ImageButton() {
         super();
-    };
+    }
 
     public ImageButton(String text, TextureRegion region, TextureRegion icon, GameWorld world, Color color, Action action, ALIGN textGravityV, ALIGN textGravityH, ALIGN iconGravityV, ALIGN iconGravityH) {
         super(text, region, world, color, action, textGravityV, textGravityH);
@@ -64,10 +64,6 @@ public class ImageButton extends Button {
         this.offsetIX = offsetX;
     }
 
-    public void setOffsetIY(float offsetY) {
-        this.offsetIY = offsetY;
-    }
-
     public void setAlignI(ALIGN alignIH, ALIGN alignIV) {
         this.alignIH = alignIH;
         this.alignIV = alignIV;
@@ -80,6 +76,10 @@ public class ImageButton extends Button {
 
     public float getOffsetIY() {
         return offsetIY;
+    }
+
+    public void setOffsetIY(float offsetY) {
+        this.offsetIY = offsetY;
     }
 
     public void addSmallIcon(TextureRegion icon) {

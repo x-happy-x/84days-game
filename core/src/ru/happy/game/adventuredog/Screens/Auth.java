@@ -22,8 +22,8 @@ import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.GameWorld;
 import ru.happy.game.adventuredog.Obj.User;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
-import ru.happy.game.adventuredog.Tools.NetTask;
 import ru.happy.game.adventuredog.Tools.GraphicTool;
+import ru.happy.game.adventuredog.Tools.NetTask;
 import ru.happy.game.adventuredog.UI.Button;
 import ru.happy.game.adventuredog.UI.Slider;
 import ru.happy.game.adventuredog.UI.TextEditor;
@@ -34,27 +34,33 @@ import static ru.happy.game.adventuredog.Tools.LevelSwitcher.setLevel;
 
 public class Auth implements Screen {
 
-    MainGDX game;
-    NetTask task, task1;
-    private int state, new_state, sex;
+    public static final Color textColor = new Color(1, 1, 1, 1);                       // Цвет текста
+    private final MainGDX game;                                                                     // Объект игры
+    private final NetTask task;                                                                     // Объект для соединения с сервером
+    private final Button reg;                                                                       // Кнопка регистрации
+    private final Button auth;                                                                      // Кнопка авторизации
+    private final Button ok;                                                                        // Кнопка далее
+    private final Button back;                                                                      // Кнопка назад
+    private final Button sexWoman;                                                                  // Кнопка пола "Женский"
+    private final Button sexMan;                                                                    // Кнопка пола "Мужской"
+    private final Button resend;                                                                    // Кнопка отправки кода
+    private final TextEditor name;                                                                  // Ввод имени
+    private final TextEditor email;                                                                 // Ввод почты
+    private final TextEditor pass;                                                                  // Ввод пароля
+    private final Slider age;                                                                       // Слайдер для возраста
+    private final User tmpUser;                                                                     // Временные данные пользователя
+    private final Vector2 errorPos;                                                                 // Позиция ошибки
+    private final Vector2 visibleArea;                                                              // Позиция при вводе
+    private final TextureAtlas atlas;                                                               // Текстура
+    private final Sprite bg;                                                                        // Фон
+    private float deltaT, deltaE, alpha, rotate;                                                    //
     private boolean showing, backspaced, keyboardOpen, stateChanging, _reg_;
-    private float deltaT, deltaE, alpha, rotate;
-    private Button reg, auth, ok, back, sexWoman, sexMan, resend;
-    private TextEditor name, email, pass;
-    private Slider age;
-    User tmpUser;
+    private int state, new_state, sex;
+    private NetTask task1;
+    private QueryType tQuery;
+    private boolean bQuery;
+    private String error;
 
-    enum QueryType {SignIn, LogIn, codeCheck, mailCheck, nameCheck, uCheck}
-
-    QueryType tQuery;
-    boolean bQuery;
-    public static Color textColor = new Color(1, 1, 1, 1);
-    Rectangle orig;
-    String error;
-    Vector2 errorPos;
-    Vector2 visibleArea;
-    TextureAtlas atlas;
-    Sprite bg;
     public static final Pattern VALID_EMAIL = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
 
     public Auth(MainGDX mainGDX) {
@@ -63,7 +69,6 @@ public class Auth implements Screen {
         error = "";
         errorPos = new Vector2();
         visibleArea = new Vector2(MainGDX.WIDTH, MainGDX.HEIGHT);
-        orig = new Rectangle();
         deltaT = 0;
         deltaE = -1f;
         showing = true;
@@ -505,6 +510,7 @@ public class Auth implements Screen {
         game.addSizeChangeListener((w1, h1) -> {
             toLocal(visibleArea, w1, h1);
             if (visibleArea.y < MainGDX.HEIGHT / 1.1) {
+                MainGDX.write("Keyboard showed, visible area: " + w1 + "x" + h1);
                 keyboardOpen = true;
                 if (name.isEdit()) {
                     name.move(MainGDX.WIDTH / 16f, visibleArea.y + name.getHeight(), MainGDX.WIDTH - MainGDX.WIDTH / 8f, name.getHeight(), 0.3f);
@@ -517,6 +523,7 @@ public class Auth implements Screen {
                     email.move(email.getX(), visibleArea.y + email.getHeight() * 2.5f, email.getWidth(), email.getHeight(), 0.3f);
                 }
             } else if ((int) visibleArea.y > MainGDX.HEIGHT - 10) {
+                MainGDX.write("Keyboard hided, visible area: " + w1 + "x" + h1);
                 keyboardOpen = false;
                 if (name.isEdit()) {
                     name.setEdit(false);
@@ -539,6 +546,30 @@ public class Auth implements Screen {
     }
 
     @Override
+    public void resize(int width, int height) {
+        visibleArea.set(MainGDX.WIDTH, MainGDX.HEIGHT);
+        bg.setBounds(0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
+        bg.setTexture(game.assets.get(game.assets.bg));
+        float w = bg.getTexture().getWidth(), h = bg.getTexture().getHeight();
+        if ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() > w / h) {
+            bg.setRegion(0, 0, (int) w, (int) ((float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth() * w));
+            bg.setRegion(0, (int) ((h - bg.getRegionHeight()) / 2f), bg.getRegionWidth(), bg.getRegionHeight());
+        } else {
+            bg.setRegion(0, 0, (int) ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() * h), (int) h);
+            bg.setRegion((int) ((w - bg.getRegionWidth()) / 2f), 0, bg.getRegionWidth(), bg.getRegionHeight());
+        }
+    }
+
+    public void SignIn(String mail, String pass, String name, int age, int sex) {
+        bQuery = false;
+        tQuery = QueryType.SignIn;
+        if (mail.length() > 0)
+            task.GET("", "mode", "0", "mail", mail, "pass", pass, "name", name, "age", age + "", "sex", sex + "", "v", "" + MainGDX.VERSION);
+        else
+            task.GET("", "mode", "0", "pass", pass, "name", name, "age", age + "", "sex", sex + "", "v", "" + MainGDX.VERSION);
+    }
+
+    @Override
     public void show() {
         if (state == 0) {
             LogIn((game.world.prefs.getString("mail").equals("@") ? game.world.prefs.getString("mail") : game.world.prefs.getString("name")), game.world.prefs.getString("pass", "None"));
@@ -549,41 +580,71 @@ public class Auth implements Screen {
         }
     }
 
-    public void SignIn(String mail, String pass, String name, int age, int sex) {
+    public void LogIn(String mail, String pass) {
         bQuery = false;
-        tQuery = QueryType.SignIn;
-        if (mail.length() > 0)
-            task.GET("", "mode","0","mail",mail,"pass", pass,"name", name,"age", age + "","sex", sex + "","v", "" + MainGDX.VERSION);
-        else
-            task.GET("", "mode","0","pass", pass,"name", name,"age", age + "","sex", sex + "","v", "" + MainGDX.VERSION);
+        tQuery = QueryType.LogIn;
+        task.GET("", "mode", "1", "mail", mail, "pass", pass);
     }
 
     public void SignIn(User user) {
         SignIn(user.getMail(), user.getPass(), user.getName(), user.getAge(), user.getSex());
     }
 
-    public void LogIn(String mail, String pass) {
-        bQuery = false;
-        tQuery = QueryType.LogIn;
-        task.GET("", "mode","1","mail", mail,"pass", pass);
-    }
-
     public void setCode(int id, int code) {
         bQuery = false;
         tQuery = QueryType.codeCheck;
-        task.GET("", "mode","2","id", id+"","code", code+"");
+        task.GET("", "mode", "2", "id", id + "", "code", code + "");
     }
 
     public void checkMail(String mail) {
         bQuery = false;
         tQuery = QueryType.mailCheck;
-        task.GET("", "mode","3","mail", mail);
+        task.GET("", "mode", "3", "mail", mail);
     }
 
     public void checkName(String name) {
         bQuery = false;
         tQuery = QueryType.nameCheck;
-        task.GET("", "mode","3","name", name);
+        task.GET("", "mode", "3", "name", name);
+    }
+
+    public void logIn() {
+        if (task1 == null) {
+            task1 = new NetTask(new NetTask.NetListener() {
+                @Override
+                public void onDownloadComplete(String filename) {
+                    User tmp;
+                    try {
+                        tmp = new Json(JsonWriter.OutputType.json).fromJson(User.class, isAndroid() ? filename : AssetsTool.encodeString(filename, false));
+                    } catch (SerializationException e) {
+                        tmp = new User();
+                        tmp.setSuccess(-1);
+                        tmp.setMessage(e.getMessage());
+                    }
+                    if (tmp.getSuccess() == 1) {
+                        tmpUser.set(tmp);
+                        game.user.set(tmp);
+                        changeState(99);
+                    }
+                }
+
+                @Override
+                public void onProgressUpdate(int progress) {
+
+                }
+
+                @Override
+                public void onDownloadFailure(String msg) {
+
+                }
+            });
+            delta = 1f;
+        }
+        delta += Gdx.graphics.getDeltaTime();
+        if (delta > 0.5f) {
+            task1.GET("", "mode", "1", "mail", tmpUser.getMail(), "pass", tmpUser.getPass());
+            delta = 0f;
+        }
     }
 
     public void changeState(int stateNew) {
@@ -930,11 +991,6 @@ public class Auth implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
     public void pause() {
 
     }
@@ -956,42 +1012,5 @@ public class Auth implements Screen {
 
     float delta;
 
-    public void logIn() {
-        if (task1 == null) {
-            task1 = new NetTask(new NetTask.NetListener() {
-                @Override
-                public void onDownloadComplete(String filename) {
-                    User tmp;
-                    try {
-                        tmp = new Json(JsonWriter.OutputType.json).fromJson(User.class, isAndroid() ? filename : AssetsTool.encodeString(filename, false));
-                    } catch (SerializationException e) {
-                        tmp = new User();
-                        tmp.setSuccess(-1);
-                        tmp.setMessage(e.getMessage());
-                    }
-                    if (tmp.getSuccess() == 1) {
-                        tmpUser.set(tmp);
-                        game.user.set(tmp);
-                        changeState(99);
-                    }
-                }
-
-                @Override
-                public void onProgressUpdate(int progress) {
-
-                }
-
-                @Override
-                public void onDownloadFailure(String msg) {
-
-                }
-            });
-            delta = 1f;
-        }
-        delta += Gdx.graphics.getDeltaTime();
-        if (delta > 0.5f) {
-            task1.GET("", "mode","1","mail",tmpUser.getMail(),"pass",tmpUser.getPass());
-            delta = 0f;
-        }
-    }
+    private enum QueryType {SignIn, LogIn, codeCheck, mailCheck, nameCheck, uCheck}
 }

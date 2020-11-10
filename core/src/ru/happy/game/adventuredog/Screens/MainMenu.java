@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.text.SimpleDateFormat;
@@ -43,6 +44,15 @@ public class MainMenu implements Screen {
     float cc = 1f, ccc = 0.3f, padding, deltaT;
     TextureRegion tmp;
 
+    Rectangle play_sizes;
+    float play_delta = 0, play_step = 5f;
+    ImageButton live_btn, ticket_btn, help_btn, pic_btn;
+    Button play_btn, shop_btn, exit_btn, user_btn, curLevel;
+    SimpleDateFormat format;
+    Thread updateTime;
+    String liveTime = "", helpTime = "", ticketTime = "";
+    double timer;
+
     public MainMenu(MainGDX mainGDX) {
         game = mainGDX;
         world = game.world;
@@ -57,10 +67,10 @@ public class MainMenu implements Screen {
         deltaT = 0;
         vectors = new ArrayList<>();
         bgs = new ArrayList<>();
-        texture = (TextureAtlas) game.assets.get("graphic");
+        texture = game.assets.get("graphic");
         bg = new Sprite();
         bg.setBounds(0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
-        bg.setTexture((Texture) game.assets.get("menu_bg"));
+        bg.setTexture(game.assets.get("menu_bg"));
         float w = bg.getTexture().getWidth(), h = bg.getTexture().getHeight();
         if ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() > w / h) {
             bg.setRegion(0, 0, (int) w, (int) ((float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth() * w));
@@ -151,11 +161,6 @@ public class MainMenu implements Screen {
     }
 
     @Override
-    public void resize(int width, int height) {
-        world.resize(width, height);
-    }
-
-    @Override
     public void pause() {
 
     }
@@ -177,88 +182,9 @@ public class MainMenu implements Screen {
         }
     }
 
-    ImageButton live_btn, ticket_btn, help_btn, pic_btn;
-    Button play_btn, shop_btn, exit_btn, user_btn, curLevel;
-    SimpleDateFormat format;
-    Thread updateTime;
-    String liveTime = "", helpTime = "", ticketTime = "";
-    double timer;
+    @Override
+    public void resize(int width, int height) {
 
-    void initButtons() {
-        format = new SimpleDateFormat("HH:mm");
-        play_btn = new Button("ИГРАТЬ", texture.findRegion("green_btn"), world, Color.WHITE, new Button.Action() {
-            @Override
-            public void isClick() {
-                if (world.getLives() > 0 && selectedLvl <= openedLvl && selectedLvl < levels) {
-                    ScreenAnim.setState(true);
-                    ScreenAnim.setClose();
-                }
-            }
-
-            @Override
-            public void isSelected() {
-
-            }
-        });
-        play_btn.setWidth(MainGDX.WIDTH / 3f);
-        play_btn.setPosition(MainGDX.WIDTH / 2f - play_btn.getWidth() / 2f, MainGDX.HEIGHT / 20f);
-
-        shop_btn = new Button("МАГАЗИН", texture.findRegion("orange_btn"), world, Color.WHITE, new Button.Action() {
-            @Override
-            public void isClick() {
-
-            }
-
-            @Override
-            public void isSelected() {
-
-            }
-        });
-        shop_btn.setWidth(MainGDX.WIDTH / 6f);
-        shop_btn.setPosition(MainGDX.WIDTH - shop_btn.getWidth() - shop_btn.getHeight(), play_btn.getY());
-
-        exit_btn = new Button("ВЫХОД", texture.findRegion("red_btn"), world, Color.WHITE, new Button.Action() {
-            @Override
-            public void isClick() {
-                Gdx.app.exit();
-            }
-
-            @Override
-            public void isSelected() {
-
-            }
-        });
-        exit_btn.setWidth(MainGDX.WIDTH / 6f);
-        exit_btn.setPosition(exit_btn.getHeight(), play_btn.getY());
-
-        curLevel = new Button("", texture.findRegion("white_btn"), world, Color.BLACK);
-        curLevel.setWidth(MainGDX.WIDTH / 6f);
-        curLevel.setUseGL(false);
-
-        live_btn = new ImageButton(world.getLives() + "", texture.findRegion("white_btn"), texture.findRegion("live"), world);
-        live_btn.setPosition(exit_btn.getX(), MainGDX.HEIGHT - MainGDX.HEIGHT / 8f);
-
-        ticket_btn = new ImageButton(world.getTicket() + "", texture.findRegion("white_btn"), texture.findRegion("ticket"), world);
-        ticket_btn.setPosition(live_btn.getX() + live_btn.getWidth() + MainGDX.HEIGHT / 20f, live_btn.getY());
-
-        help_btn = new ImageButton(world.getHelp() + "", texture.findRegion("white_btn"), texture.findRegion("help"), world);
-        help_btn.setPosition(ticket_btn.getX() + ticket_btn.getWidth() + MainGDX.HEIGHT / 20f, ticket_btn.getY());
-
-        user_btn = new Button(world.getUser().getName(), texture.findRegion("white_btn"), world, Color.BLACK);
-        user_btn.setSize(Math.max(MainGDX.WIDTH / 5f, user_btn.getWidth()), live_btn.getHeight());
-        user_btn.setOffsetX(20);
-        user_btn.setAlignT(Button.ALIGN.LEFT, Button.ALIGN.CENTER);
-        user_btn.setPosition(MainGDX.WIDTH - user_btn.getWidth() - exit_btn.getX(), live_btn.getY());
-
-        help_btn.setIconSize(help_btn.getHeight() - help_btn.getOffsetIY() * 2f);
-        live_btn.setIconSize(help_btn.getHeight() - help_btn.getOffsetIY() * 2f);
-        ticket_btn.setIconSize(help_btn.getHeight() - help_btn.getOffsetIY() * 2f);
-
-        pic_btn = new ImageButton("", texture.findRegion("white_btn"), texture.findRegion("live"), world);
-        pic_btn.setSize(user_btn.getHeight() * 2, user_btn.getHeight() * 2);
-        pic_btn.setPosition(MainGDX.WIDTH - pic_btn.getWidth() - exit_btn.getX() * 0.8f, MainGDX.HEIGHT - MainGDX.HEIGHT / 50f - pic_btn.getHeight());
-        pic_btn.setAlignI(Button.ALIGN.CENTER, Button.ALIGN.CENTER);
-        pic_btn.setIconSize(pic_btn.getWidth() * 0.75f);
     }
 
     ImageButton pName, pMail, pPass, pSet;
@@ -273,7 +199,6 @@ public class MainMenu implements Screen {
         user_btn.move(MainGDX.WIDTH / 4f, MainGDX.HEIGHT / 3f, MainGDX.WIDTH / 2f, user_btn.getHeight(), 1);
         pMail.move(pMail.getX(), MainGDX.HEIGHT / 4.5f, pMail.getWidth(), pMail.getHeight(), 1);
     }
-
     void drawProfile(float delta) {
         pic_btn.setCursor(cursor);
         user_btn.setCursor(cursor);
@@ -376,7 +301,89 @@ public class MainMenu implements Screen {
         }
     }
 
+    void initButtons() {
+        format = new SimpleDateFormat("HH:mm");
+        play_btn = new Button("ИГРАТЬ", texture.findRegion("green_btn"), world, Color.WHITE, new Button.Action() {
+            @Override
+            public void isClick() {
+                if (world.getLives() > 0 && selectedLvl <= openedLvl && selectedLvl < levels) {
+                    ScreenAnim.setState(true);
+                    ScreenAnim.setClose();
+                }
+            }
+
+            @Override
+            public void isSelected() {
+
+            }
+        });
+        play_btn.setWidth(MainGDX.WIDTH / 3f);
+        play_btn.setPosition(MainGDX.WIDTH / 2f - play_btn.getWidth() / 2f, MainGDX.HEIGHT / 20f);
+        play_sizes = new Rectangle(play_btn.getX(), play_btn.getY(), play_btn.getWidth(), play_btn.getHeight());
+
+        shop_btn = new Button("МАГАЗИН", texture.findRegion("orange_btn"), world, Color.WHITE, new Button.Action() {
+            @Override
+            public void isClick() {
+
+            }
+
+            @Override
+            public void isSelected() {
+
+            }
+        });
+        shop_btn.setWidth(MainGDX.WIDTH / 6f);
+        shop_btn.setPosition(MainGDX.WIDTH - shop_btn.getWidth() - shop_btn.getHeight(), play_btn.getY());
+
+        exit_btn = new Button("ВЫХОД", texture.findRegion("red_btn"), world, Color.WHITE, new Button.Action() {
+            @Override
+            public void isClick() {
+                Gdx.app.exit();
+            }
+
+            @Override
+            public void isSelected() {
+
+            }
+        });
+        exit_btn.setWidth(MainGDX.WIDTH / 6f);
+        exit_btn.setPosition(exit_btn.getHeight(), play_btn.getY());
+
+        curLevel = new Button("", texture.findRegion("white_btn"), world, Color.BLACK);
+        curLevel.setWidth(MainGDX.WIDTH / 6f);
+        curLevel.setUseGL(false);
+
+        live_btn = new ImageButton(world.getLives() + "", texture.findRegion("white_btn"), texture.findRegion("live"), world);
+        live_btn.setPosition(exit_btn.getX(), MainGDX.HEIGHT - MainGDX.HEIGHT / 8f);
+
+        ticket_btn = new ImageButton(world.getTicket() + "", texture.findRegion("white_btn"), texture.findRegion("ticket"), world);
+        ticket_btn.setPosition(live_btn.getX() + live_btn.getWidth() + MainGDX.HEIGHT / 20f, live_btn.getY());
+
+        help_btn = new ImageButton(world.getHelp() + "", texture.findRegion("white_btn"), texture.findRegion("help"), world);
+        help_btn.setPosition(ticket_btn.getX() + ticket_btn.getWidth() + MainGDX.HEIGHT / 20f, ticket_btn.getY());
+
+        user_btn = new Button(world.getUser().getName(), texture.findRegion("white_btn"), world, Color.BLACK);
+        user_btn.setSize(Math.max(MainGDX.WIDTH / 5f, user_btn.getWidth()), live_btn.getHeight());
+        user_btn.setOffsetX(20);
+        user_btn.setAlignT(Button.ALIGN.LEFT, Button.ALIGN.CENTER);
+        user_btn.setPosition(MainGDX.WIDTH - user_btn.getWidth() - exit_btn.getX(), live_btn.getY());
+
+        help_btn.setIconSize(help_btn.getHeight() - help_btn.getOffsetIY() * 2f);
+        live_btn.setIconSize(help_btn.getHeight() - help_btn.getOffsetIY() * 2f);
+        ticket_btn.setIconSize(help_btn.getHeight() - help_btn.getOffsetIY() * 2f);
+
+        pic_btn = new ImageButton("", texture.findRegion("white_btn"), texture.findRegion("live"), world);
+        pic_btn.setSize(user_btn.getHeight() * 2, user_btn.getHeight() * 2);
+        pic_btn.setPosition(MainGDX.WIDTH - pic_btn.getWidth() - exit_btn.getX() * 0.8f, MainGDX.HEIGHT - MainGDX.HEIGHT / 50f - pic_btn.getHeight());
+        pic_btn.setAlignI(Button.ALIGN.CENTER, Button.ALIGN.CENTER);
+        pic_btn.setIconSize(pic_btn.getWidth() * 0.75f);
+    }
+
     void drawButtons(float delta) {
+        play_delta += delta * play_step;
+        if (play_delta <= 0 || play_delta >= 3) play_step *= -1;
+        play_btn.setPosition(play_sizes.x - play_delta * 3, play_sizes.y - play_delta * 1.1f);
+        play_btn.setSize(play_sizes.width + play_delta * 6, play_sizes.height + play_delta * 2.2f);
         world.getTextSize("1", 1f, GameWorld.FONTS.SMEDIAN);
         world.setText(liveTime, 0.7f, live_btn.getX() + live_btn.getWidth() / 2f, live_btn.getY() - MainGDX.HEIGHT / 35f / 2f, Color.BLACK, true, GameWorld.FONTS.SMALL);
         world.setText(ticketTime, 0.7f, ticket_btn.getX() + ticket_btn.getWidth() / 2f, ticket_btn.getY() - MainGDX.HEIGHT / 35f / 2f, Color.BLACK, true, GameWorld.FONTS.SMALL);

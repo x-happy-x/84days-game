@@ -1,15 +1,12 @@
 package ru.happy.game.adventuredog.UI;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.GameWorld;
-import ru.happy.game.adventuredog.Screens.Auth;
 
 public class PlayerSlider {
 
@@ -22,7 +19,7 @@ public class PlayerSlider {
     TextureRegion icon, icon2;
     ImageView bg, btn;
 
-    public PlayerSlider(TextureRegion btn, TextureRegion bg, TextureRegion ic,TextureRegion ic2, Color textColor) {
+    public PlayerSlider(TextureRegion btn, TextureRegion bg, TextureRegion ic, TextureRegion ic2, Color textColor) {
         this.bg = new ImageView(bg);
         this.btn = new ImageView(btn);
         rect = new Rectangle();
@@ -38,26 +35,26 @@ public class PlayerSlider {
     }
 
     public void draw(MainGDX game, float _delta_) {
-        drawing.setWidth(game.interpolation.apply(pos.width, pos.width*1.2f, delta));
-        drawing.setHeight(game.interpolation.apply(pos.height, pos.height*1.2f, delta));
-        drawing.setX(game.interpolation.apply(pos.x, pos.x - (pos.width*1.2f-pos.width)/2, delta));
-        drawing.setY(game.interpolation.apply(pos.y, pos.y - (pos.height*1.2f-pos.height)/2, delta));
+        drawing.setWidth(game.interpolation.apply(pos.width, pos.width * 1.2f, delta));
+        drawing.setHeight(game.interpolation.apply(pos.height, pos.height * 1.2f, delta));
+        drawing.setX(game.interpolation.apply(pos.x, pos.x - (pos.width * 1.2f - pos.width) / 2, delta));
+        drawing.setY(game.interpolation.apply(pos.y, pos.y - (pos.height * 1.2f - pos.height) / 2, delta));
         int minutes;
-        minutes = (int) (curValue/60);
-        String v = String.format("%02d:%02d", minutes,(int)(curValue - minutes * 60));
-        game.world.setText(v, 1, rect.x-game.world.getTextSize(v,1, GameWorld.FONTS.SMALL)[0], pos.y + pos.height / 2f, textColor, true, GameWorld.FONTS.SMALL);
-        minutes = (int) (maxValue/60);
-        v = String.format("%02d:%02d", minutes,(int)(maxValue - minutes * 60));
-        game.world.setText(v, 1, rect.x+rect.width+game.world.getTextSize(v,1, GameWorld.FONTS.SMALL)[0], pos.y + pos.height / 2f, textColor, true, GameWorld.FONTS.SMALL);
-        bg.setSize(rect.width,rect.height);
-        bg.setPosition(rect.x,rect.y);
-        bg.setRadius(rect.height/2f);
+        minutes = (int) (curValue / 60);
+        String v = String.format("%02d:%02d", minutes, (int) (curValue - minutes * 60));
+        game.world.setText(v, 1, rect.x - game.world.getTextSize(v, 1, GameWorld.FONTS.SMALL)[0], pos.y + pos.height / 2f, textColor, true, GameWorld.FONTS.SMALL);
+        minutes = (int) (maxValue / 60);
+        v = String.format("%02d:%02d", minutes, (int) (maxValue - minutes * 60));
+        game.world.setText(v, 1, rect.x + rect.width + game.world.getTextSize(v, 1, GameWorld.FONTS.SMALL)[0], pos.y + pos.height / 2f, textColor, true, GameWorld.FONTS.SMALL);
+        bg.setSize(rect.width, rect.height);
+        bg.setPosition(rect.x, rect.y);
+        bg.setRadius(rect.height / 2f);
         bg.draw(game);
-        btn.setPosition(drawing.x,drawing.y);
-        btn.setSize(drawing.width,drawing.height);
-        btn.setRadius(drawing.width/2f);
+        btn.setPosition(drawing.x, drawing.y);
+        btn.setSize(drawing.width, drawing.height);
+        btn.setRadius(drawing.width / 2f);
         btn.draw(game);
-        game.getBatch().draw(isPaused()?icon2:icon,drawing.x+drawing.width*0.25f,drawing.y+drawing.height*0.25f,drawing.width*0.5f,drawing.height*0.5f);
+        game.getBatch().draw(isPaused() ? icon2 : icon, drawing.x + drawing.width * 0.25f, drawing.y + drawing.height * 0.25f, drawing.width * 0.5f, drawing.height * 0.5f);
         if (selected) {
             if (delta < 1f) delta += _delta_ * 3f;
         } else if (delta > 0f) {
@@ -80,42 +77,37 @@ public class PlayerSlider {
         pos.setPosition(getPosForValue(maxValue), rect.y + rect.height / 2f - pos.height / 2f);
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public void setValues(float min, float max) {
         maxValue = max;
         minValue = min;
     }
 
-    public void setPaused(boolean paused) {
-        this.paused = paused;
+    public boolean isClicked(Vector2 v) {
+        return isClicked(v.x, v.y);
     }
-    public boolean isClicked(Vector2 v){
-        return isClicked(v.x,v.y);
-    }
-    public boolean isClicked(float x, float y){
-        return isActive() && pos.contains(x,y);
+
+    public boolean isClicked(float x, float y) {
+        return isActive() && pos.contains(x, y);
     }
 
     public boolean isPaused() {
         return paused;
     }
 
+    public void setPaused(boolean paused) {
+        this.paused = paused;
+    }
+
     public boolean isActive() {
         return active;
     }
 
-    public boolean isSelected() {
-        return selected;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
-    public void setValue(float value) {
-        if (value <= maxValue && value >= minValue) {
-            curValue = value;
-            pos.setX(getPosForValue(value));
-        }
+    public boolean isSelected() {
+        return selected;
     }
 
     private float getPosForValue(float value) {
@@ -156,5 +148,12 @@ public class PlayerSlider {
 
     public float getValue() {
         return curValue;
+    }
+
+    public void setValue(float value) {
+        if (value <= maxValue && value >= minValue) {
+            curValue = value;
+            pos.setX(getPosForValue(value));
+        }
     }
 }

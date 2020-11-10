@@ -84,13 +84,6 @@ public class Slider {
         minValue = min;
     }
 
-    public void setValue(int value) {
-        if (value <= maxValue && value >= minValue) {
-            curValue = value;
-            pos.setX(getPosForValue(value));
-        }
-    }
-
     private float getPosForValue(int value) {
         return rect.x + (rect.width - pos.width) * (1f / (maxValue - minValue) * (value - minValue));
     }
@@ -129,5 +122,12 @@ public class Slider {
 
     public int getValue() {
         return curValue;
+    }
+
+    public void setValue(int value) {
+        if (value <= maxValue && value >= minValue) {
+            curValue = value;
+            pos.setX(getPosForValue(value));
+        }
     }
 }

@@ -39,7 +39,7 @@ public class ImageView {
         game.getBatch().draw(region, pos.x + radius, pos.y + radius, pos.width - radius * 2, pos.height - radius * 2);
         setRegion(rect.x + rect.width / 2, rect.y + rect.height / 2f - 1, rect.width / 2f, 2);
         game.getBatch().draw(region, pos.x + pos.width - radius, pos.y + radius, radius, pos.height - radius * 2);
-        setRegion(rect.x,rect.y,rect.width,rect.height);
+        setRegion(rect.x, rect.y, rect.width, rect.height);
     }
 
     public void setPosition(float x, float y) {
@@ -62,35 +62,35 @@ public class ImageView {
         pos.set(x, y, w, h);
     }
 
-    public void setX(float x) {
-        pos.setX(x);
-    }
-
-    public void setY(float y) {
-        pos.setY(y);
-    }
-
-    public void setWidth(float w) {
-        pos.setWidth(w);
-    }
-
-    public void setHeight(float h) {
-        pos.setHeight(h);
-    }
-
     public float getX() {
         return pos.getX();
+    }
+
+    public void setX(float x) {
+        pos.setX(x);
     }
 
     public float getY() {
         return pos.getY();
     }
 
+    public void setY(float y) {
+        pos.setY(y);
+    }
+
     public float getWidth() {
         return pos.getWidth();
     }
 
+    public void setWidth(float w) {
+        pos.setWidth(w);
+    }
+
     public float getHeight() {
         return pos.getHeight();
+    }
+
+    public void setHeight(float h) {
+        pos.setHeight(h);
     }
 }

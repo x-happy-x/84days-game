@@ -13,8 +13,7 @@ import ru.happy.game.adventuredog.Screens.Auth;
 
 public class Button {
 
-    // Привязка для текста
-    public enum ALIGN {LEFT, CENTER, RIGHT, TOP, BOTTOM, CUSTOM}
+    public boolean OnAutoSize;
     // Параметры
     protected float tmp_w, delta, dark, deltaAction, finishAction, offsetX, offsetY, offset;
     protected boolean click, active, selected, actionRun, useGL;
@@ -26,9 +25,8 @@ public class Button {
     protected String _text_;
     protected Color textColor;
 
-    public boolean OnAutoSize;
-
-    protected Button() {}
+    protected Button() {
+    }
 
     public Button(String text, TextureRegion region, GameWorld world, Color color, Action action, ALIGN textGravityV, ALIGN textGravityH) {
         this._text_ = text;
@@ -72,10 +70,6 @@ public class Button {
         this.offsetY = offsetY;
     }
 
-    public void setAction(Action action) {
-        this.action = action;
-    }
-
     public void setRect(float x, float y, float w, float h) {
         setPosition(x, y);
         setSize(w, h);
@@ -98,24 +92,12 @@ public class Button {
         return action;
     }
 
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
     public String getText() {
         return _text_;
-    }
-
-    public void setWidth(float w) {
-        pos.width = w;
-    }
-
-    public void setHeight(float h) {
-        pos.height = h;
-    }
-
-    public void setX(float x) {
-        pos.x = x;
-    }
-
-    public void setY(float y) {
-        pos.y = y;
     }
 
     public void setOffset(float offset) {
@@ -301,38 +283,48 @@ public class Button {
         return selected;
     }
 
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+
     public boolean isActive() {
         return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public float getX() {
         return pos.x;
     }
 
+    public void setX(float x) {
+        pos.x = x;
+    }
+
     public float getY() {
         return pos.y;
+    }
+
+    public void setY(float y) {
+        pos.y = y;
     }
 
     public float getWidth() {
         return pos.width;
     }
 
+    public void setWidth(float w) {
+        pos.width = w;
+    }
+
     public float getHeight() {
         return pos.height;
     }
 
-    public interface Action {
-        void isClick();
-
-        void isSelected();
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
+    public void setHeight(float h) {
+        pos.height = h;
     }
 
     public void setTexture(TextureRegion tmp) {
@@ -347,6 +339,15 @@ public class Button {
     public void setAlignT(ALIGN alignTH, ALIGN alignTV) {
         this.alignTH = alignTH;
         this.alignTV = alignTV;
+    }
+
+    // Привязка для текста
+    public enum ALIGN {LEFT, CENTER, RIGHT, TOP, BOTTOM, CUSTOM}
+
+    public interface Action {
+        void isClick();
+
+        void isSelected();
     }
     /*public Button copy(){
         Button copy = new Button();

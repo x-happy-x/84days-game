@@ -33,27 +33,30 @@ import ru.happy.game.adventuredog.UI.ImageView;
 import ru.happy.game.adventuredog.UI.PlayerSlider;
 import ru.happy.game.adventuredog.UI.TextEditor;
 
-import static ru.happy.game.adventuredog.Tools.AssetsTool.isAndroid;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.addRectArea;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.toLocal;
 
 public class MusicLevel implements Screen {
 
     boolean musicLoaded, infoLoaded, isCutting, isGuessed, levelMultiplexer, isChanging,
-            typeSelected, isPause, isEnd, isWin, nextLoading;
-    int musicN, guessed, musicCount, selectedQuest, selectedMenu, scoreMusic, newQuest,
-            errors, musicL;
-    float musicP, currentProgress, downloadProgress, pause_delta, showText_delta, end_delta;
+            typeSelected, isPause, isEnd, isWin, nextLoading, needCut, usedHelp, showedWarning;
+    int musicN, guessed, musicCount, selectedQuest, selectedMenu, scoreMusic, scoreAllMusic,
+            newQuest, errors, musicL;
+    float musicP, currentProgress, downloadProgress, pause_delta, showText_delta, end_delta,
+            menuText_delta;
     LoadedMusic musics;
-    String titleText, showedText;
+    String titleText, showedText, menuText;
     NetTask netTask;
     Vector2 cursor;
     MainGDX game;
 
     ArrayList<Float> cut;
     ArrayList<String[]> quest;
-    String[] pause_list = new String[]{"ПРОДОЛЖИТЬ", "ПРОПУСТИТЬ УРОВЕНЬ", "НАЧАТЬ СНАЧАЛА", "ПАРАМЕТРЫ", "ГЛАВНОЕ МЕНЮ"},
-            end_list = new String[]{"СЛЕДУЮЩИЙ УРОВЕНЬ", "НАЧАТЬ СНАЧАЛА", "ПАРАМЕТРЫ", "ГЛАВНОЕ МЕНЮ"}, menuList;
+    String[] pause_list = new String[]
+            {"ПРОДОЛЖИТЬ", "ПРОПУСТИТЬ УРОВЕНЬ", "НАЧАТЬ СНАЧАЛА", "ПАРАМЕТРЫ", "ГЛАВНОЕ МЕНЮ"},
+            end_list = new String[]
+                    {"СЛЕДУЮЩИЙ УРОВЕНЬ", "НАЧАТЬ СНАЧАЛА", "ПАРАМЕТРЫ", "ГЛАВНОЕ МЕНЮ"},
+            menuList;
     Rectangle[] menu;
     Sprite poster;
     Color mainBG, pauseC, lose, win;
@@ -82,8 +85,10 @@ public class MusicLevel implements Screen {
         musics = new LoadedMusic();
         buttons = new ArrayList<>();
         ScreenAnim.level = musicN = -1;
-        nextLoading = infoLoaded = musicLoaded = isGuessed = typeSelected = isEnd = isWin = isPause = false;
-        showText_delta = pause_delta = end_delta = currentProgress = downloadProgress = musicCount = guessed = 0;
+        nextLoading = infoLoaded = musicLoaded = isGuessed = typeSelected = isEnd = isWin = isPause
+                = needCut = usedHelp = showedWarning = false;
+        showText_delta = menuText_delta = pause_delta = end_delta = currentProgress
+                = downloadProgress = musicCount = guessed = 0;
 
         //Получение цветов
         mainBG = Color.valueOf("#204051");
@@ -107,21 +112,24 @@ public class MusicLevel implements Screen {
         ok = new Button("Далее", texture.findRegion("blue_btn"), game.world, Color.WHITE, new Button.Action() {
             @Override
             public void isClick() {
-                showText_delta = 3f;
-                if (musicCheck(input.getText())) {
-                    isGuessed = true;
-                    showedText = "Урааа вы угадали";
-                    guessed++;
-                } else {
-                    errors++;
-                    if (errors == 3){
-                        game.world.useLives();
-                        if (game.world.getLives() == 0) isEnd = true;
-                        live_btn.setText(game.world.getLives()+"",game);
-                        errors = 0;
-                        showedText = "Ууупс, вы потеряли одну жизнь";
+                if (!isGuessed) {
+                    showText_delta = 3f;
+                    if (musicCheck(input.getText())) {
+                        isGuessed = true;
+                        showedText = "Урааа вы угадали";
+                        scoreAllMusic += scoreMusic;
+                        guessed++;
                     } else {
-                        showedText = "Уже "+errors+" неверных попыток_Ещё "+(3-errors)+" и будет сюрприз";
+                        errors++;
+                        if (errors == 3) {
+                            game.world.useLives();
+                            if (game.world.getLives() == 0) isEnd = true;
+                            live_btn.setText(game.world.getLives() + "", game);
+                            errors = 0;
+                            showedText = "Ууупс, вы потеряли одну жизнь";
+                        } else {
+                            showedText = "Уже " + errors + " неверных попыток_Ещё " + (3 - errors) + " и будет сюрприз";
+                        }
                     }
                 }
             }
@@ -240,15 +248,18 @@ public class MusicLevel implements Screen {
         ticket_btn.setAction(new Button.Action() {
             @Override
             public void isClick() {
-                if (game.world.getTicket() > 0) {
-                    game.world.useTicket();
-                    ticket_btn.setText(game.world.getTicket()+"",game);
-                    showedText = (selectedQuest>2?musics.musics.get(musicN).title:musics.musics.get(musicN).artist).split("__")[0];
-                    showText_delta = 3f;
-                    isGuessed = true;
-                } else {
-                    showText_delta = 3f;
-                    showedText = "Уууупс у вас закончились подсказки";
+                if (!isGuessed) {
+                    if (game.world.getTicket() > 0) {
+                        game.world.useTicket();
+                        ticket_btn.setText(game.world.getTicket() + "", game);
+                        showedText = (selectedQuest > 2 ? musics.musics.get(musicN).title : musics.musics.get(musicN).artist).split("__")[0];
+                        showText_delta = 3f;
+                        isGuessed = true;
+                        guessed++;
+                    } else {
+                        showText_delta = 3f;
+                        showedText = "Уууупс у вас закончились подсказки";
+                    }
                 }
             }
 
@@ -267,19 +278,21 @@ public class MusicLevel implements Screen {
         help_btn.setAction(new Button.Action() {
             @Override
             public void isClick() {
-                if (game.world.getHelp() > 0){
-                    game.world.useHelp();
-                    help_btn.setText(""+game.world.getHelp(),game);
-                    showText_delta = 5f;
-                    String name = (selectedQuest>2?musics.musics.get(musicN).title:musics.musics.get(musicN).artist).split("__")[0];
-                    showedText = "Название песни:_"+name.substring(0,name.length()/2);
-                    for (String s: name.substring(name.length()/2).split(" ")){
-                        for (int i = 0; i < s.length(); i++) showedText += "*";
-                        showedText += " ";
+                if (!isGuessed) {
+                    if (usedHelp) {
+                        showText_delta = 2f;
+                        showedText = "Вы уже воспользовались подсказкой";
+                    } else if (game.world.getHelp() > 0) {
+                        game.world.useHelp();
+                        help_btn.setText("" + game.world.getHelp(), game);
+                        showText_delta = 2f;
+                        showedText = "Теперь вы можете слушать всю песню";
+                        needCut = false;
+                        usedHelp = true;
+                    } else {
+                        showText_delta = 3f;
+                        showedText = "Ой ой у вас нет подсказок";
                     }
-                } else {
-                    showText_delta = 3f;
-                    showedText = "Ой ой у вас нет подсказок";
                 }
             }
 
@@ -293,7 +306,7 @@ public class MusicLevel implements Screen {
         // Фон для заголовка при опросе
         title = new ImageView(texture.findRegion("square_darkgray_btn"));
         title.setRadius(50);
-        title.setSize(MainGDX.WIDTH+50, MainGDX.WIDTH / 10f);
+        title.setSize(MainGDX.WIDTH + 50, MainGDX.WIDTH / 10f);
         title.setPosition(-25, -20);
 
         // Переход к первому вопросу
@@ -306,15 +319,15 @@ public class MusicLevel implements Screen {
             if (visibleArea.y < MainGDX.HEIGHT / 1.1) {
                 if (input.isEdit()) {
                     input.move(input.getX(), visibleArea.y + input.getHeight(), input.getWidth(), input.getHeight(), 0.3f);
-                    ok.move(MainGDX.WIDTH - 40 - ok.getWidth(), visibleArea.y + ok.getHeight(),ok.getWidth(), ok.getHeight(), 0.3f);
-                    exit.move(40, visibleArea.y + exit.getHeight(),exit.getWidth(), exit.getHeight(), 0.3f);
+                    ok.move(MainGDX.WIDTH - 40 - ok.getWidth(), visibleArea.y + ok.getHeight(), ok.getWidth(), ok.getHeight(), 0.3f);
+                    exit.move(40, visibleArea.y + exit.getHeight(), exit.getWidth(), exit.getHeight(), 0.3f);
                 }
             } else if ((int) visibleArea.y > MainGDX.HEIGHT - 10) {
                 if (input.isEdit()) {
                     input.setEdit(false);
-                    input.move(40 + exit.getWidth() + 20, 30,input.getWidth(),input.getHeight(), 0.3f);
-                    ok.move(MainGDX.WIDTH - 40 - ok.getWidth(), 30,ok.getWidth(), ok.getHeight(), 0.3f);
-                    exit.move(40, 30,exit.getWidth(), exit.getHeight(), 0.3f);
+                    input.move(40 + exit.getWidth() + 20, 30, input.getWidth(), input.getHeight(), 0.3f);
+                    ok.move(MainGDX.WIDTH - 40 - ok.getWidth(), 30, ok.getWidth(), ok.getHeight(), 0.3f);
+                    exit.move(40, 30, exit.getWidth(), exit.getHeight(), 0.3f);
                 }
             }
         });
@@ -323,12 +336,12 @@ public class MusicLevel implements Screen {
             public void onDownloadComplete(String msg) {
                 if (infoLoaded) {
                     boolean isMusic = msg.endsWith(".mp3");
-                    if (isMusic){
+                    if (isMusic) {
                         nextLoading = false;
                         musicL++;
                     }
-                    game.manager.add(game.assets.getLevel(), msg,msg, isMusic? "M" : "T");
-                    if (!typeSelected && musics.musics.get(musics.musics.size()-1).path.contains(msg)) {
+                    game.manager.add(game.assets.getLevel(), msg, msg, isMusic ? "M" : "T");
+                    if (!typeSelected && musics.musics.get(musics.musics.size() - 1).path.contains(msg)) {
                         musicLoad(0);
                         ScreenAnim.setClose();
                         ScreenAnim.setState(true);
@@ -378,6 +391,7 @@ public class MusicLevel implements Screen {
             @Override
             public void onDownloadFailure(String msg) {
                 showedText = "Не удалось загрузить";
+                showText_delta = 5f;
             }
         });
     }
@@ -400,7 +414,7 @@ public class MusicLevel implements Screen {
         //    game.world.setText(musics.musics.get(musicN).artist, 1f, MainGDX.WIDTH / 2f, 40, Color.BLUE, true);
         if (infoLoaded && !typeSelected && musicL > 0) {
             next.setCursor(cursor);
-            next.draw(game,delta);
+            next.draw(game, delta);
         }
         game.end();
         if (infoLoaded && !typeSelected) {
@@ -421,7 +435,10 @@ public class MusicLevel implements Screen {
             }
         } else if (pause_delta != 0) {
             if (slider.isPaused())
-            if (!levelMultiplexer) setInputLevel();
+                if (!levelMultiplexer) {
+                    setInputLevel();
+                    showedWarning = false;
+                }
             if (pause_delta > 0f) pause_delta -= delta;
             else if (pause_delta < 0f) pause_delta = 0f;
         }
@@ -429,6 +446,10 @@ public class MusicLevel implements Screen {
             if (levelMultiplexer) {
                 menuList = end_list;
                 setInputMenu();
+                if (scoreAllMusic >= musicL * 100 - 30) {
+                    game.world.getBonus = true;
+                    game.world.addHelp();
+                }
             }
             if (end_delta < 1f) end_delta += delta;
             else if (end_delta > 1f) {
@@ -438,11 +459,13 @@ public class MusicLevel implements Screen {
             }
         }
         if (end_delta > 0) {
-            if (music != null) music.setVolume(Math.max(1 - end_delta,0.2f));
-            menu = game.layout.drawEnd(game, menuList, isWin?"Поздравляшки :)":"Печалька :(", end_delta, game.interpolation, isWin, selectedMenu, isWin?win:lose, mainBG);
+            if (music != null) music.setVolume(Math.max(1 - end_delta, 0.2f));
+            menu = game.layout.drawEnd(game, menuList, isWin ? "Поздравляшки :)" : "Печалька :(", end_delta, game.interpolation, isWin, selectedMenu, isWin ? win : lose, mainBG);
+            drawTextInMenu();
         } else if (pause_delta > 0) {
             if (music != null) music.setVolume(1 - pause_delta);
             menu = game.layout.drawPause(game, menuList, pause_delta, game.interpolation, guessed, -1, musicCount, selectedMenu, pauseC, mainBG);
+            drawTextInMenu();
         }
         if (ScreenAnim.getState()) {
             game.drawShape();
@@ -470,9 +493,23 @@ public class MusicLevel implements Screen {
 
     }
 
+    private void drawTextInMenu() {
+        if (menuText_delta > 0) {
+            menuText_delta -= Gdx.graphics.getDeltaTime();
+            game.draw();
+            String[] ss = menuText.split("_");
+            for (int i = 0; i < ss.length; i++) {
+                game.world.setText(ss[i], 1f, menu[menu.length - 1].x + menu[menu.length - 1].width / 2f, menu[menu.length - 1].y - menu[menu.length - 1].height / 2f - game.world.getSizes()[1] * i, Color.WHITE, Color.BLACK, true, GameWorld.FONTS.SMALL);
+            }
+            game.end();
+        }
+    }
+
+
     @Override
     public void pause() {
-
+        isPause = true;
+        pause_delta = 1.1f;
     }
 
     @Override
@@ -482,7 +519,7 @@ public class MusicLevel implements Screen {
 
     @Override
     public void hide() {
-
+        pause();
     }
 
     @Override
@@ -629,6 +666,7 @@ public class MusicLevel implements Screen {
         game.world.updateMultiplexer();
         game.world.updateMultiplexer();
     }
+
     // Установить слушатели для меню
     public void setInputMenu() {
         levelMultiplexer = false;
@@ -667,34 +705,59 @@ public class MusicLevel implements Screen {
                                 isPause = false;
                                 break;
                             case "пропустить уровень":
-                                if (game.world.getTicket() < 10){
-                                    System.out.println(10);
-                                }
+                                menuText_delta = 5f;
+                                menuText = game.world.getTicket() < 10 ? "У вас не достаточно пропусков" : "Нажмите и удерживайте чтобы пропустить";
                                 break;
                             case "следующий уровень":
                                 if (game.manager.getInt("levels") >= game.assets.getLevel()) {
                                     ScreenAnim.setState(true);
                                     ScreenAnim.setClose();
                                     ScreenAnim.level = game.assets.getLevel() + 1;
-                                    if (music != null) music.pause();
+                                    if (music != null) {
+                                        slider.setPaused(true);
+                                        music.pause();
+                                    }
+                                } else {
+                                    menuText = "Уууууууууупс, а его нет";
+                                    menuText_delta = 3f;
                                 }
                                 break;
                             case "начать сначала":
-                                isPause = false;
-                                if (game.world.getLives() > 0) {
-                                    ScreenAnim.setState(true);
-                                    ScreenAnim.setClose();
-                                    ScreenAnim.level = game.assets.getLevel();
-                                    if (music != null) music.pause();
+                                if (showedWarning || isEnd) {
+                                    isPause = false;
+                                    if (!isEnd) game.world.useLives();
+                                    if (game.world.getLives() > 0) {
+                                        ScreenAnim.setState(true);
+                                        ScreenAnim.setClose();
+                                        ScreenAnim.level = game.assets.getLevel();
+                                        if (music != null) {
+                                            slider.setPaused(true);
+                                            music.pause();
+                                        }
+                                    } else {
+                                        menuText = "Уууууупс, а жизней у вас нет";
+                                        menuText_delta = 3f;
+                                    }
+                                } else {
+                                    menuText = "Если вы выйдите не закончив игру,_то потеряете жизнь";
+                                    menuText_delta = 3f;
+                                    showedWarning = true;
                                 }
                                 break;
                             case "главное меню":
-                                isPause = false;
-                                ScreenAnim.setState(true);
-                                ScreenAnim.setClose();
-                                ScreenAnim.level = 0;
-                                if (music != null) music.pause();
-                                slider.setPaused(true);
+                                if (showedWarning || isEnd) {
+                                    isPause = false;
+                                    if (!isEnd) game.world.useLives();
+                                    ScreenAnim.setState(true);
+                                    ScreenAnim.setClose();
+                                    ScreenAnim.level = 0;
+                                    if (music != null) music.pause();
+                                    slider.setPaused(true);
+                                } else {
+                                    menuText = "Если вы выйдите не закончив игру,_то потеряете жизнь";
+                                    menuText_delta = 3f;
+                                    showedWarning = true;
+                                }
                                 break;
                         }
                         break;
@@ -712,7 +775,8 @@ public class MusicLevel implements Screen {
                         selectedMenu = i;
                         if ("пропустить уровень".equals(menuList[i].toLowerCase())) {
                             if (game.world.getTicket() < 10) {
-                                System.out.println(10);
+                                menuText_delta = 5f;
+                                menuText = "У вас не достаточно пропусков";
                             } else {
                                 isPause = false;
                                 game.world.useTicket(10);
@@ -769,7 +833,7 @@ public class MusicLevel implements Screen {
             }
             music = game.assets.get(musics.musics.get(musicN).path);
             poster.setRegion((Texture) game.assets.get(musics.musics.get(musicN).image));
-            float   w = poster.getRegionWidth(), h = poster.getRegionHeight(),
+            float w = poster.getRegionWidth(), h = poster.getRegionHeight(),
                     ow = poster.getWidth(), oh = poster.getHeight();
             if (ow / oh > w / h) {
                 poster.setRegion(0, 0, (int) w, (int) (oh / ow * w));
@@ -788,8 +852,9 @@ public class MusicLevel implements Screen {
                 music.pause();
             } else if (!isCutting && music.isPlaying()) {
                 musicP = music.getPosition();
-                for (int i = 0; i < cut.size(); i++)
-                    if (cutCheck(cut.get(i++), cut.get(i))) break;
+                if (needCut)
+                    for (int i = 0; i < cut.size(); i++)
+                        if (cutCheck(cut.get(i++), cut.get(i))) break;
                 if (slider.isSelected()) music.pause();
                 slider.setValue(musicP);
             } else if (!isCutting && !slider.isSelected()) {
@@ -799,15 +864,17 @@ public class MusicLevel implements Screen {
             }
         }
     }
+
     // Загрузка музыки
     private void musicLoad(int N) {
         musicN = N;
+        usedHelp = false;
         game.assets.load(musics.musics.get(N).path);
         game.assets.load(musics.musics.get(N).image);
         slider.setValues(0, (int) musics.musics.get(N).len);
         slider.setValue(0);
         slider.setPaused(true);
-        musicLoaded = true;
+        musicLoaded = needCut = true;
         cut.clear();
         String cutT = musics.musics.get(N).cut;
         if (!cutT.equalsIgnoreCase("0")) {
@@ -818,29 +885,33 @@ public class MusicLevel implements Screen {
             }
         }
     }
+
     // Проверка названия
     public boolean musicCheck(String x) {
         scoreMusic = 100;
-        String[] names = (selectedQuest>2?musics.musics.get(musicN).title:musics.musics.get(musicN).artist).split("__");
+        String[] names = (selectedQuest > 2 ? musics.musics.get(musicN).title : musics.musics.get(musicN).artist).split("__");
         x = x.replace("\n", "").replace("ё", "е").replace("Ё", "Е");
         for (String s : names) {
             String name = s.trim().replace('ё', 'е').replace('Ё', 'Е');
             if (name.equals(x.trim())) return true;
-            scoreMusic -= 15;
             if (name.equalsIgnoreCase(x.trim())) return true;
-            scoreMusic -= 10;
-            for (String j : ".,:;_¡!¿?\"'+-*/()[]={}%".split("")) {
-                name = name.replace(j, "");
-                x = x.replace(j, "");
+            for (String j : GameWorld.getSymbolsCharset().split("")) {
+                name = name.replace(j, " ");
+                x = x.replace(j, " ");
             }
+            while (name.contains("  "))
+                name = name.replace("  ", " ");
+            while (x.contains("  "))
+                x = x.replace("  ", " ");
+            MainGDX.write(name + "\n" + x);
+            System.out.println(AssetsTool.encodePlatform(name + "-" + x, true));
             if (name.equals(x.trim())) return true;
-            scoreMusic -= 10;
             if (name.equalsIgnoreCase(x.trim())) return true;
-            scoreMusic -= 15;
-            scoreMusic -= 50 / names.length;
+            scoreMusic -= 100 / names.length;
         }
         return false;
     }
+
     // Обновление плейера
     private void playerUpdate(float delta) {
         game.getBatch().setColor(0, 0, 0, 1);
@@ -852,17 +923,17 @@ public class MusicLevel implements Screen {
             float height = MainGDX.HEIGHT / 3f;
             game.getBatch().draw(texture.findRegion("ask"), fragment.getX() + fragment.getWidth() / 2f - height / 5 * 2, fragment.getY() + fragment.getHeight() / 2f - height / 2f, height / 5 * 4, height);
         }
-        if (showText_delta > 0f){
-            if (!nextLoading) showText_delta-=delta;
+        if (showText_delta > 0f) {
+            if (!nextLoading) showText_delta -= delta;
             String[] ss = showedText.split("_");
-            for (int i = 0; i < ss.length; i++){
-                game.world.setText(ss[ss.length-1-i],1f,fragment.getX()+fragment.getWidth()/2f,fragment.getY()+MainGDX.HEIGHT/20f+game.world.getSizes()[1]*1.5f*i,Color.WHITE,Color.BLACK,true, GameWorld.FONTS.SMEDIAN);
+            for (int i = 0; i < ss.length; i++) {
+                game.world.setText(ss[ss.length - 1 - i], 1f, fragment.getX() + fragment.getWidth() / 2f, fragment.getY() + MainGDX.HEIGHT / 20f + game.world.getSizes()[1] * 1.5f * i, Color.WHITE, Color.BLACK, true, GameWorld.FONTS.SMEDIAN);
             }
         } else if (isGuessed) {
-            if (musicN + 1 == musics.musics.size()){
+            if (musicN + 1 == musics.musics.size()) {
                 isWin = true;
                 isEnd = true;
-            } else if (musicN+1 == musicL) {
+            } else if (musicN + 1 == musicL) {
                 showedText = "Загрузка следующей песни_Расслабтесь, выйпейте чашечку чая и вернитесь в игру завтра";
                 nextLoading = true;
                 showText_delta = 1;
@@ -883,7 +954,7 @@ public class MusicLevel implements Screen {
         game.world.setText("" + guessed, 1.3f, pic_bg.getX() + pic_bg.getWidth() - 20 - game.world.getTextSize("" + guessed, 1.3f, GameWorld.FONTS.SMEDIAN)[0], pic_bg.getY() + pic_bg.getHeight() - 20, Color.DARK_GRAY, false, GameWorld.FONTS.SMEDIAN);
         game.world.setText("" + musicCount, 1.3f, pic_bg.getX() + pic_bg.getWidth() - 20 - game.world.getTextSize("" + musicCount, 1.3f, GameWorld.FONTS.SMEDIAN)[0], pic_bg.getY() + pic_bg.getHeight() - 20 - game.world.getSizes()[1] * 2f, Color.DARK_GRAY, false, GameWorld.FONTS.SMEDIAN);
 
-        game.world.setText("Чтобы использовать подсказку нажмите на неё",0.5f,pic_bg.getX()+pic_bg.getWidth()/2f,(live_bg.getY()+pic_bg.getY())/2f+2,Color.DARK_GRAY,true, GameWorld.FONTS.SMALL);
+        game.world.setText("Чтобы использовать подсказку нажмите на неё", 0.5f, pic_bg.getX() + pic_bg.getWidth() / 2f, (live_bg.getY() + pic_bg.getY()) / 2f + 2, Color.DARK_GRAY, true, GameWorld.FONTS.SMALL);
         if (levelMultiplexer) {
             ok.setCursor(cursor);
             exit.setCursor(cursor);
@@ -893,6 +964,9 @@ public class MusicLevel implements Screen {
             help_btn.setCursor(cursor);
             ticket_btn.setCursor(cursor);
         }
+        live_btn.setText("" + game.world.getLives(), game);
+        help_btn.setText("" + game.world.getHelp(), game);
+        ticket_btn.setText("" + game.world.getTicket(), game);
         slider.draw(game, delta);
         live_btn.draw(game, delta);
         help_btn.draw(game, delta);

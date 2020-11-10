@@ -21,11 +21,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
-import ru.happy.game.adventuredog.Tools.NetTask;
 import ru.happy.game.adventuredog.Tools.GamePrefs;
-
-import static ru.happy.game.adventuredog.Tools.AssetsTool.encodePlatform;
-import static ru.happy.game.adventuredog.Tools.AssetsTool.isAndroid;
+import ru.happy.game.adventuredog.Tools.NetTask;
 
 public class GameWorld extends Stage {
 
@@ -57,8 +54,7 @@ public class GameWorld extends Stage {
         prefs = new GamePrefs("prefs");
         if (AssetsTool.isExists("shaders/font.vert")) {
             fontShader = new ShaderProgram(AssetsTool.getFile("shaders/font.vert"), AssetsTool.getFile("shaders/font.frag"));
-            if (!fontShader.isCompiled()) fontShaderOn = false;
-            else fontShaderOn = true;
+            fontShaderOn = fontShader.isCompiled();
         }
     }
 
@@ -125,6 +121,10 @@ public class GameWorld extends Stage {
 
     public static String getNumCharset() {
         return FONT_CHARACTERS.substring(118, 128);
+    }
+
+    public static String getSymbolsCharset() {
+        return FONT_CHARACTERS.substring(129);
     }
 
     @Override

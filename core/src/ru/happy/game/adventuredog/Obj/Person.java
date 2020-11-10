@@ -136,8 +136,7 @@ public class Person extends Actor {
                 if (name.equals(xx)) return true;
                 scoreName -= 10;
                 if (name.equalsIgnoreCase(xx)) return true;
-                scoreName -= 15;
-                scoreName -= 50 / names.length;
+                scoreName += 35 - 50 / names.length;
             }
             return false;
         }
@@ -154,8 +153,7 @@ public class Person extends Actor {
             if (name.equals(x.trim())) return true;
             scoreName -= 10;
             if (name.equalsIgnoreCase(x.trim())) return true;
-            scoreName -= 15;
-            scoreName -= 50 / names.length;
+            scoreName += 35 - 50 / names.length;
         }
         return false;
     }
@@ -178,7 +176,6 @@ public class Person extends Actor {
             scoreMulti -= 10;
             if (multi.equalsIgnoreCase(xx)) return true;
             scoreMulti -= 15;
-            scoreMulti -= 50;
             return false;
         }
         String multi = this.multi.trim().replace('ё', 'е').replace('Ё', 'Е');
@@ -194,7 +191,6 @@ public class Person extends Actor {
         scoreMulti -= 10;
         if (multi.equalsIgnoreCase(x)) return true;
         scoreMulti -= 15;
-        scoreMulti -= 50;
         return false;
     }
 
