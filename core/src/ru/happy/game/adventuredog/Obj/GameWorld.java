@@ -19,6 +19,8 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
+import java.util.Arrays;
+
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
 import ru.happy.game.adventuredog.Tools.GamePrefs;
@@ -26,25 +28,21 @@ import ru.happy.game.adventuredog.Tools.NetTask;
 
 public class GameWorld extends Stage {
 
+    public static String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890 .,:;_¡!¿?\"'+-*/()[]={}%@";
+    public InputMultiplexer multiplexer;
+    public int fontSize = 20;
+    public String out;
+    public boolean skipLevel, usedBonus, firstVisible, firstErrVisible, getBonus;
+    public GamePrefs prefs;
     User user;
     NetTask task;
     OrthographicCamera camera;
     BitmapFont font, bigFont, smallFont, medFont, smedFont, custom;
     GlyphLayout glyphLayout;
     ShaderProgram fontShader;
-    public InputMultiplexer multiplexer;
     float aFloat = 1f;
-    public static String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890 .,:;_¡!¿?\"'+-*/()[]={}%@";
-    public int fontSize = 20;
-
-    public enum FONTS {CUR, SMALL, SMEDIAN, MEDIAN, BIG, CUSTOM}
-
-    public String out;
-    public boolean skipLevel, usedBonus, firstVisible, firstErrVisible, getBonus;
-    private boolean fontShaderOn, synced, syncError;
-    public GamePrefs prefs;
     float[] sizes = new float[]{0, 0};
-
+    private boolean fontShaderOn, synced, syncError, lockedAction;
     public GameWorld() {
         multiplexer = new InputMultiplexer();
         Gdx.input.setCatchBackKey(true);
@@ -53,15 +51,33 @@ public class GameWorld extends Stage {
         setViewport(new FitViewport(MainGDX.WIDTH, MainGDX.HEIGHT));
         prefs = new GamePrefs("prefs");
         if (AssetsTool.isExists("shaders/font.vert")) {
-            fontShader = new ShaderProgram(AssetsTool.getFile("shaders/font.vert"), AssetsTool.getFile("shaders/font.frag"));
+            fontShader = new ShaderProgram(AssetsTool.getFileHandler("shaders/font.vert"), AssetsTool.getFileHandler("shaders/font.frag"));
             fontShaderOn = fontShader.isCompiled();
         }
     }
 
-    public void setUser(User user) {
-        prefs.putBoolean("sync", false);
-        prefs.flush();
-        this.user = user;
+    public void setLockedAction(boolean lockedAction) {
+        this.lockedAction = lockedAction;
+    }
+
+    public boolean isLockedAction() {
+        return lockedAction;
+    }
+
+    public static String getEngCharset() {
+        return FONT_CHARACTERS.substring(0, 52);
+    }
+
+    public static String getRusCharset() {
+        return FONT_CHARACTERS.substring(52, 118);
+    }
+
+    public static String getNumCharset() {
+        return FONT_CHARACTERS.substring(118, 128);
+    }
+
+    public static String getSymbolsCharset() {
+        return FONT_CHARACTERS.substring(129);
     }
 
     public void LoadData() {
@@ -107,24 +123,8 @@ public class GameWorld extends Stage {
             }
         });
         if (!synced) {
-            task.GET("","mode","4","mail",prefs.getString("name"), "pass",prefs.getString("pass"),"data", getLives() + "_" + getTicket() + "_" + getHelp() + "_" + prefs.getInteger("finished_level", 0) + "_" + prefs.getInteger("opened_level", 0) + "_" + MainGDX.VERSION);
+            task.GET("", "mode", "4", "mail", prefs.getString("name"), "pass", prefs.getString("pass"), "data", getLives() + "_" + getTicket() + "_" + getHelp() + "_" + prefs.getInteger("finished_level", 0) + "_" + prefs.getInteger("opened_level", 0) + "_" + MainGDX.VERSION);
         }
-    }
-
-    public static String getEngCharset() {
-        return FONT_CHARACTERS.substring(0, 52);
-    }
-
-    public static String getRusCharset() {
-        return FONT_CHARACTERS.substring(52, 118);
-    }
-
-    public static String getNumCharset() {
-        return FONT_CHARACTERS.substring(118, 128);
-    }
-
-    public static String getSymbolsCharset() {
-        return FONT_CHARACTERS.substring(129);
     }
 
     @Override
@@ -179,16 +179,37 @@ public class GameWorld extends Stage {
         return user;
     }
 
+    public void setUser(User user) {
+        prefs.putBoolean("sync", false);
+        prefs.flush();
+        this.user = user;
+    }
+
     public int getLives() {
         return user.getLives();
+    }
+
+    public void setLives(int lives) {
+        user.setLives(lives);
+        useLives(0);
     }
 
     public int getTicket() {
         return user.getTickets();
     }
 
+    public void setTicket(int ticket) {
+        user.setTickets(ticket);
+        useTicket(0);
+    }
+
     public int getHelp() {
         return user.getHelps();
+    }
+
+    public void setHelp(int help) {
+        user.setHelps(help);
+        useHelp(0);
     }
 
     public void useTicket() {
@@ -247,21 +268,6 @@ public class GameWorld extends Stage {
         useHelp(-c);
     }
 
-    public void setLives(int lives) {
-        user.setLives(lives);
-        useLives(0);
-    }
-
-    public void setTicket(int ticket) {
-        user.setTickets(ticket);
-        useTicket(0);
-    }
-
-    public void setHelp(int help) {
-        user.setHelps(help);
-        useHelp(0);
-    }
-
     public void updateMultiplexer() {
         Gdx.input.setInputProcessor(multiplexer);
     }
@@ -276,12 +282,12 @@ public class GameWorld extends Stage {
         multiplexer.addProcessor(processor);
     }
 
-    public void setAlpha(float alpha) {
-        aFloat = alpha;
-    }
-
     public float getAlpha() {
         return aFloat;
+    }
+
+    public void setAlpha(float alpha) {
+        aFloat = alpha;
     }
 
     public void resize(float w, float h) {
@@ -357,7 +363,7 @@ public class GameWorld extends Stage {
 
     public void setFont(String font, int size, boolean external) {
         if (this.custom != null) custom.dispose();
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(external ? AssetsTool.getFile("fonts/" + font + ".ttf") : Gdx.files.internal("fonts/" + font + ".ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(external ? AssetsTool.getFileHandler("fonts/" + font + ".ttf") : Gdx.files.internal("fonts/" + font + ".ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = size;
         fontSize = size;
@@ -441,4 +447,6 @@ public class GameWorld extends Stage {
         setText(text, size, x - 1, y + 1, stroke, centerx, centery, ftype);
         setText(text, size, x, y, color, centerx, centery, ftype);
     }
+
+    public enum FONTS {CUR, SMALL, SMEDIAN, MEDIAN, BIG, CUSTOM}
 }

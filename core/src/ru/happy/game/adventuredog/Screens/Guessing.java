@@ -35,10 +35,13 @@ import ru.happy.game.adventuredog.UI.TextEditor;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.addRectArea;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.getClick;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.toLocal;
-import static ru.happy.game.adventuredog.Tools.LevelSwitcher.setLevel;
+import static ru.happy.game.adventuredog.Screens.LoadScreen.setLevel;
 
 public class Guessing implements Screen {
 
+    //Static parameters
+    public static int step;
+    public static int[] roomSize;
     //Objects
     MainGDX game;
     GameWorld world;
@@ -46,11 +49,6 @@ public class Guessing implements Screen {
     Layout layout;
     Sprite bgRoom;
     Interpolation interpolation = Interpolation.exp5;
-
-    //Static parameters
-    public static int step;
-    public static int[] roomSize;
-
     //Params
     int h, w, h0, w0, h_max, w_max, select, gcount, allcount,
             showedC, errCount, selectedItemMenu = 0, score, errorType;
@@ -77,6 +75,11 @@ public class Guessing implements Screen {
     //Resources
     TextureAtlas atlas, menuAtlas;
     //TextureAtlas.AtlasRegion livesR, helpsR, ticketsR;
+    Color mainBG, darker, win, lose, pauseC;
+    TextEditor name, multi;
+    Button ok_btn, cancel_btn, help_btn, ticket_btn;
+    ImageButton live_bar, help_bar, ticket_bar;
+    ImageView menu_bg;
 
     public Guessing(MainGDX mainGDX) {
         // Инициализация пустых переменных
@@ -96,8 +99,8 @@ public class Guessing implements Screen {
         world = game.world;
         layout = game.layout;
         // Грузим ресурсы
-        atlas = (TextureAtlas) game.assets.get("graphic");
-        menuAtlas = (TextureAtlas) game.assets.get(game.manager.getGUI());
+        atlas = game.assets.get("graphic");
+        menuAtlas = game.assets.get(game.manager.getGUI());
         // Настраиваем фон
         bgRoom = new Sprite();
         bgRoom.setRegion((Texture) game.assets.get("bg"));
@@ -120,7 +123,7 @@ public class Guessing implements Screen {
         h_max = bgRoom.getRegionHeight();
         w_max = bgRoom.getRegionWidth();
         // Подгружаем надписи
-        String textTmp = game.assets.getLevelFile("texts.pref");
+        String textTmp = game.assets.getLevelContent("texts.pref");
         if (!AssetsTool.isAndroid()) textTmp = AssetsTool.encodeString(textTmp, false);
         for (String i : textTmp.split("\n\n")) {
             texts.put(i.substring(i.indexOf("[") + 1, i.indexOf("]")), i.substring(i.indexOf("\n") + 1).split("\n"));
@@ -128,7 +131,7 @@ public class Guessing implements Screen {
         menulist = texts.get("END");
         // Добавляем персонажей
         persons = new ArrayList<>();
-        textTmp = game.assets.getLevelFile("persons.prop");
+        textTmp = game.assets.getLevelContent("persons.prop");
         for (String person : textTmp.split("\n\n")) {
             Map<String, String> params = AssetsTool.getParamFromFile(person);
             persons.add(new Person(atlas.findRegion(params.get("pic")), Integer.parseInt(params.get("x")), Integer.parseInt(params.get("y")),
@@ -138,7 +141,7 @@ public class Guessing implements Screen {
         Collections.reverse(persons);
         // Добавляем двери
         doors = new Door();
-        textTmp = game.assets.getLevelFile("doors.prop");
+        textTmp = game.assets.getLevelContent("doors.prop");
         for (String anim : textTmp.split("\n\n")) {
             Map<String, String> params = AssetsTool.getParamFromFile(anim);
             doors.append(params, atlas);
@@ -665,8 +668,6 @@ public class Guessing implements Screen {
     public void dispose() {
     }
 
-    Color mainBG, darker, win, lose, pauseC;
-
     private void createLayout() {
         mainBG = Color.valueOf("#204051");
         win = Color.valueOf("#6D74FF");
@@ -862,11 +863,6 @@ public class Guessing implements Screen {
     private Rectangle addArea(Rectangle r, int x) {
         return clickTmp.set(r.x - x, r.y - x, r.width + x * 2, r.height + x * 2);
     }
-
-    TextEditor name, multi;
-    Button ok_btn, cancel_btn, help_btn, ticket_btn;
-    ImageButton live_bar, help_bar, ticket_bar;
-    ImageView menu_bg;
 
     private void drawLayout() {
         // Меню с кнопками

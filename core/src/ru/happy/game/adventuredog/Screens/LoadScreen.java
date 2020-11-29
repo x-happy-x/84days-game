@@ -37,13 +37,32 @@ public class LoadScreen implements Screen {
         game = mainGDX;
     }
 
+    public static void setLevel(MainGDX game, int level) {
+        if (game.world.getLives() <= 0) level = 0;
+        game.world.startSync();
+        game.clearBg.set(0, 0, 0, 1);
+        game.world.skipLevel = false;
+        game.world.usedBonus = false;
+        game.world.getBonus = false;
+        game.world.firstErrVisible = false;
+        game.world.firstVisible = false;
+        game.world.getActors().clear();
+        game.world.resetMultiplexer();
+        if (game.getScreen() != null) game.getScreen().dispose();
+        game.assets.fresh();
+        game.assets.setLevel(level);
+        game.manager.setLevel(level);
+        game.assets.load();
+        game.setScreen(new LoadScreen(game));
+    }
+
     @Override
     public void show() {
         game.assets.finishLoad(game.manager.getGUI());
         pbShow = -1;
         bgShow = -1;
         if (game.assets.isLevelFile("load2.pref")) {
-            String[] nTextures = game.assets.getLevelFile("load2.pref").split("\n\n");
+            String[] nTextures = game.assets.getLevelContent("load2.pref").split("\n\n");
             loadTxt = new HashMap[nTextures.length];
             for (int i = 0; i < nTextures.length; i++) {
                 loadTxt[i] = AssetsTool.getParamFromFile(nTextures[i]);
@@ -53,13 +72,12 @@ public class LoadScreen implements Screen {
         }
         if (game.assets.getLevel() > 0) {
             //Map<String, String> levelPref = game.assets.getLevelProp();
-            showedHint = game.manager.getString(game.assets.getLevel(),"hint" + MathUtils.random(1, game.manager.getInt(game.assets.getLevel(),"hints")));
+            showedHint = game.manager.getString(game.assets.getLevel(), "hint" + MathUtils.random(1, game.manager.getInt(game.assets.getLevel(), "hints")));
             if (showedHint == null) showedHint = "";
             if (Gdx.app.getType() == Application.ApplicationType.Desktop)
                 showedHint = AssetsTool.encodeString(showedHint, false);
-
         }
-        if (game.manager.get("load") != null) atlas = (TextureAtlas) game.assets.get("load");
+        if (game.manager.get("load") != null) atlas = game.assets.get("load");
         if (atlas != null && atlas.findRegion("loadbg") != null) {
             bg = new Sprite();
             bgShow = -1;

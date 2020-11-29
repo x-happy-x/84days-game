@@ -15,7 +15,6 @@ import ru.happy.game.adventuredog.Anim.ScreenAnim;
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.Dog;
 import ru.happy.game.adventuredog.Obj.GameWorld;
-import ru.happy.game.adventuredog.Tools.LevelSwitcher;
 
 public class MainScreen implements Screen {
     Texture bg;
@@ -59,7 +58,7 @@ public class MainScreen implements Screen {
     public void render(float delta) {
         world.getBatch().begin();
         //world.getBatch().draw(bg, 0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
-        world.setText("FPS: " + Gdx.graphics.getFramesPerSecond(), 2f, MainGDX.WIDTH / 2f, 20f, new Color(1, 1, 1, 1), true);
+        world.setText("FPS: " + Gdx.graphics.getFramesPerSecond(), 2f, dog.getX(), 20f, new Color(1, 1, 1, 1), true);
         dog.draw((SpriteBatch) world.getBatch());
         world.draw();
         if (ScreenAnim.getState()) {
@@ -67,7 +66,7 @@ public class MainScreen implements Screen {
             game.drawShape();
             if (ScreenAnim.show(game)) {
                 if (ScreenAnim.isClosing()) {
-                    LevelSwitcher.setLevel(game, ScreenAnim.level);
+                    LoadScreen.setLevel(game, ScreenAnim.level);
                 }
                 ScreenAnim.setState(false);
             }

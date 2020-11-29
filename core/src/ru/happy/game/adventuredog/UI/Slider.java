@@ -11,11 +11,15 @@ import ru.happy.game.adventuredog.Obj.GameWorld;
 import ru.happy.game.adventuredog.Screens.Auth;
 
 public class Slider {
-    int maxValue, minValue, curValue;
+    float maxValue, minValue, curValue;
     boolean selected, active;
     float delta;
     Color textColor, accent, bgColor;
     Rectangle pos, rect, drawing;
+
+    Slider(){
+
+    }
 
     public Slider(Color accent, Color bg) {
         rect = new Rectangle();
@@ -79,12 +83,12 @@ public class Slider {
         pos.setPosition(getPosForValue(maxValue), rect.y + rect.height / 2f - pos.height / 2f);
     }
 
-    public void setValues(int min, int max) {
+    public void setValues(float min, float max) {
         maxValue = max;
         minValue = min;
     }
 
-    private float getPosForValue(int value) {
+    private float getPosForValue(float value) {
         return rect.x + (rect.width - pos.width) * (1f / (maxValue - minValue) * (value - minValue));
     }
 
@@ -120,11 +124,11 @@ public class Slider {
         setCursor(v.x, v.y);
     }
 
-    public int getValue() {
+    public float getValue() {
         return curValue;
     }
 
-    public void setValue(int value) {
+    public void setValue(float value) {
         if (value <= maxValue && value >= minValue) {
             curValue = value;
             pos.setX(getPosForValue(value));

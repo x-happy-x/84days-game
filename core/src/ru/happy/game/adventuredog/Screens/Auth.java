@@ -30,11 +30,12 @@ import ru.happy.game.adventuredog.UI.TextEditor;
 
 import static ru.happy.game.adventuredog.Tools.AssetsTool.isAndroid;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.toLocal;
-import static ru.happy.game.adventuredog.Tools.LevelSwitcher.setLevel;
+import static ru.happy.game.adventuredog.Screens.LoadScreen.setLevel;
 
 public class Auth implements Screen {
 
-    public static final Color textColor = new Color(1, 1, 1, 1);                       // Цвет текста
+    public static final Pattern VALID_EMAIL = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+    public static Color textColor = Color.valueOf("#ffffff");                                 // Цвет текста
     private final MainGDX game;                                                                     // Объект игры
     private final NetTask task;                                                                     // Объект для соединения с сервером
     private final Button reg;                                                                       // Кнопка регистрации
@@ -53,6 +54,7 @@ public class Auth implements Screen {
     private final Vector2 visibleArea;                                                              // Позиция при вводе
     private final TextureAtlas atlas;                                                               // Текстура
     private final Sprite bg;                                                                        // Фон
+    float delta;
     private float deltaT, deltaE, alpha, rotate;                                                    //
     private boolean showing, backspaced, keyboardOpen, stateChanging, _reg_;
     private int state, new_state, sex;
@@ -61,9 +63,9 @@ public class Auth implements Screen {
     private boolean bQuery;
     private String error;
 
-    public static final Pattern VALID_EMAIL = Pattern.compile("^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
-
     public Auth(MainGDX mainGDX) {
+        textColor = Color.valueOf("#ffffff");
+
         tmpUser = new User();
         game = mainGDX;
         error = "";
@@ -129,7 +131,7 @@ public class Auth implements Screen {
                         errorPos.set(MainGDX.WIDTH / 2f, ok.getY() + ok.getHeight() / 2f);
                         deltaE = 0f;
                     } else {
-                        tmpUser.setAge(age.getValue());
+                        tmpUser.setAge((int) age.getValue());
                         tmpUser.setSex(sex);
                         tmpUser.setName(name.getText());
                         tmpUser.setPass(pass.getText());
@@ -768,6 +770,9 @@ public class Auth implements Screen {
                 }
             }
             textColor.a = alpha;
+            MainGDX.write(alpha + "");
+        } else {
+            textColor.a = 1f;
         }
         if (state == 0) {
             game.draw();
@@ -1009,8 +1014,6 @@ public class Auth implements Screen {
     public void dispose() {
 
     }
-
-    float delta;
 
     private enum QueryType {SignIn, LogIn, codeCheck, mailCheck, nameCheck, uCheck}
 }

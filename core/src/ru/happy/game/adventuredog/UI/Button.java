@@ -6,16 +6,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import ru.happy.game.adventuredog.Interfaces.ElementsUI;
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.GameWorld;
 import ru.happy.game.adventuredog.Screens.Auth;
 
 
-public class Button {
+public class Button implements ElementsUI {
 
     public boolean OnAutoSize;
-    // Параметры
-    protected float tmp_w, delta, dark, deltaAction, finishAction, offsetX, offsetY, offset;
+    protected float tmp_w, delta, dark, deltaAction, finishAction, offsetX, offsetY, offset, alpha_delta;
     protected boolean click, active, selected, actionRun, useGL;
     protected Action action;
     protected Rectangle rect, pos, drawing, orig, newPos;
@@ -42,11 +42,12 @@ public class Button {
         this.text = world.getGlyphLayout(text, 1f, textColor, GameWorld.FONTS.SMEDIAN);
         this.OnAutoSize = active = useGL = true;
         this.actionRun = selected = click = false;
-        this.action = action;
-        this.alignTH = textGravityH;
-        this.alignTV = textGravityV;
-        this.offsetY = offsetX = 8;
-        this.offset = 0.05f;
+        setAction(action);
+        setAlignT(textGravityH,textGravityV);
+        setOffsetX(8);
+        setOffsetY(8);
+        setOffset(0.05f);
+        this.alpha_delta = Auth.textColor.a;
         this.setAutoSize();
     }
 
@@ -58,8 +59,9 @@ public class Button {
         this(text, region, world, color, null, ALIGN.CENTER, ALIGN.CENTER);
     }
 
-    public void setUseGL(boolean useGL) {
+    public Button setUseGL(boolean useGL) {
         this.useGL = useGL;
+        return this;
     }
 
     public void setOffsetX(float offsetX) {
@@ -79,13 +81,14 @@ public class Button {
         setSize(this.text.width * 1.2f, this.text.height * 3f);
     }
 
-    public void setText(String text, MainGDX game) {
+    public Button setText(String text, MainGDX game) {
         _text_ = text;
         game.world.getFont(GameWorld.FONTS.SMEDIAN).setColor(textColor.r, textColor.g, textColor.g, Auth.textColor.a);
         this.text.setText(game.world.getFont(GameWorld.FONTS.SMEDIAN), text);
         if (this.text.width > pos.width && OnAutoSize) {
             setAutoSize();
         }
+        return this;
     }
 
     public Action getAction() {
@@ -104,15 +107,17 @@ public class Button {
         this.offset = offset;
     }
 
-    public void setPosition(float x, float y) {
+    public Button setPosition(float x, float y) {
         pos.setPosition(x, y);
         orig.set(pos);
+        return this;
     }
 
-    public void setSize(float w, float h) {
+    public Button setSize(float w, float h) {
         pos.setSize(w, h);
         tmp_w = tmp.getRegionWidth() / 2f * pos.height / tmp.getRegionHeight();
         orig.set(pos);
+        return this;
     }
 
     public Rectangle getOrig() {
@@ -125,11 +130,14 @@ public class Button {
             pos.setSize(game.interpolation.apply(orig.width, newPos.width, deltaAction / finishAction), game.interpolation.apply(orig.height, newPos.height, deltaAction / finishAction));
             tmp_w = tmp.getRegionWidth() / 2f * pos.height / tmp.getRegionHeight();
             deltaAction += _delta_;
-            if (finishAction <= deltaAction) actionRun = false;
+            if (finishAction <= deltaAction) {
+                if (action != null) action.onCompletionAction();
+                actionRun = false;
+            }
         }
-        drawing.setX(game.interpolation.apply(pos.x, pos.x - pos.width * offset, delta));
+        drawing.setX(game.interpolation.apply(pos.x, pos.x - pos.height * offset, delta));
         drawing.setY(game.interpolation.apply(pos.y, pos.y - pos.height * offset, delta));
-        drawing.setWidth(game.interpolation.apply(pos.width, pos.width + pos.width * offset * 2, delta));
+        drawing.setWidth(game.interpolation.apply(pos.width, pos.width + pos.height * offset * 2, delta));
         drawing.setHeight(game.interpolation.apply(pos.height, pos.height + pos.height * offset * 2, delta));
         Color sbColor = game.getBatch().getColor();
         float darker = active ? game.interpolation.apply(0, dark, delta) : 0.4f;
@@ -141,7 +149,10 @@ public class Button {
         tmp.setRegion((int) (rect.x + rect.width / 2), (int) rect.y, (int) rect.width / 2, (int) rect.height);
         game.getBatch().draw(tmp, drawing.x + drawing.width - tmp_w, drawing.y, tmp_w, drawing.height);
         game.getBatch().setColor(sbColor.r + darker, sbColor.g + darker, sbColor.b + darker, Auth.textColor.a);
-        if (useGL && Auth.textColor.a != 1f) setText(getText(), game);
+        if (useGL && (Auth.textColor.a != 1f || alpha_delta != 1f)) {
+            alpha_delta = Auth.textColor.a;
+            setText(getText(), game);
+        }
         float textX, textY;
         boolean centerX, centerY;
         switch (alignTH) {
@@ -201,7 +212,7 @@ public class Button {
                 getAction().isSelected();
             }
         }
-        if (selected) {
+        if (isSelected()) {
             if (delta < 1f) delta += _delta_ * 3f;
         } else if (delta > 0f) {
             delta -= _delta_ * 3f;
@@ -272,7 +283,7 @@ public class Button {
     }
 
     public void setCursor(float x, float y) {
-        selected = active && pos.contains(x, y);
+        setSelected(active && pos.contains(x, y));
     }
 
     public void setCursor(Vector2 v) {
@@ -340,36 +351,4 @@ public class Button {
         this.alignTH = alignTH;
         this.alignTV = alignTV;
     }
-
-    // Привязка для текста
-    public enum ALIGN {LEFT, CENTER, RIGHT, TOP, BOTTOM, CUSTOM}
-
-    public interface Action {
-        void isClick();
-
-        void isSelected();
-    }
-    /*public Button copy(){
-        Button copy = new Button();
-        copy._text_ = _text_;
-        copy.textColor = textColor;
-        copy.tmp = tmp;
-        copy.delta = delta;
-        copy.dark = dark;
-        copy.orig = orig;
-        copy.selected = selected;
-        copy.active = active;
-        copy.click = click;
-        copy.drawing = drawing;
-        copy.newPos = newPos;
-        copy.rect = rect;
-        copy.text = text;
-        copy.pos = pos;
-        copy.setAutoSize();
-        copy.action = action;
-        copy.alignTH = alignTH;
-        copy.alignTV = alignTH;
-        copy.offsetX = 8;
-        return copy;
-    }*/
 }

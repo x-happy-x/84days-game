@@ -5,10 +5,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.Locale;
+
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.GameWorld;
 
-public class PlayerSlider {
+public class PlayerSlider extends Slider {
 
     //TextureRegion bg, btn;
     float maxValue, minValue, curValue;
@@ -20,6 +22,7 @@ public class PlayerSlider {
     ImageView bg, btn;
 
     public PlayerSlider(TextureRegion btn, TextureRegion bg, TextureRegion ic, TextureRegion ic2, Color textColor) {
+        super();
         this.bg = new ImageView(bg);
         this.btn = new ImageView(btn);
         rect = new Rectangle();
@@ -41,10 +44,10 @@ public class PlayerSlider {
         drawing.setY(game.interpolation.apply(pos.y, pos.y - (pos.height * 1.2f - pos.height) / 2, delta));
         int minutes;
         minutes = (int) (curValue / 60);
-        String v = String.format("%02d:%02d", minutes, (int) (curValue - minutes * 60));
+        String v = String.format(Locale.getDefault(), "%02d:%02d", minutes, (int) (curValue - minutes * 60));
         game.world.setText(v, 1, rect.x - game.world.getTextSize(v, 1, GameWorld.FONTS.SMALL)[0], pos.y + pos.height / 2f, textColor, true, GameWorld.FONTS.SMALL);
         minutes = (int) (maxValue / 60);
-        v = String.format("%02d:%02d", minutes, (int) (maxValue - minutes * 60));
+        v = String.format(Locale.getDefault(), "%02d:%02d", minutes, (int) (maxValue - minutes * 60));
         game.world.setText(v, 1, rect.x + rect.width + game.world.getTextSize(v, 1, GameWorld.FONTS.SMALL)[0], pos.y + pos.height / 2f, textColor, true, GameWorld.FONTS.SMALL);
         bg.setSize(rect.width, rect.height);
         bg.setPosition(rect.x, rect.y);
@@ -60,6 +63,14 @@ public class PlayerSlider {
         } else if (delta > 0f) {
             delta -= _delta_ * 3f;
         }
+    }
+
+    public float getMaxValue() {
+        return maxValue;
+    }
+
+    public float getMinValue() {
+        return minValue;
     }
 
     public void setSize(float w, float h) {
@@ -111,7 +122,7 @@ public class PlayerSlider {
     }
 
     private float getPosForValue(float value) {
-        return rect.x + (rect.width - pos.width) * (1f / (maxValue - minValue) * (value - minValue));
+        return rect.x + (rect.width - pos.width) * (1f / (getMaxValue() - getMinValue()) * (value - getMinValue()));
     }
 
     public float getY() {
@@ -132,10 +143,10 @@ public class PlayerSlider {
 
     public void setCursor(float x, float y) {
         if (selected && x > 0 && y > 0) {
-            if (getPosForValue(minValue) >= x - pos.width / 2f) setValue(minValue);
-            else if (getPosForValue(maxValue) <= x - pos.width / 2f) setValue(maxValue);
+            if (getPosForValue(getMinValue()) >= x - pos.width / 2f) setValue(getMinValue());
+            else if (getPosForValue(getMaxValue()) <= x - pos.width / 2f) setValue(getMaxValue());
             else
-                setValue((int) ((x - pos.width / 2f - rect.x) * ((maxValue - minValue + 1) / (rect.width - pos.width))));
+                setValue((int) ((x - pos.width / 2f - rect.x) * ((getMaxValue() - getMinValue() + 1) / (rect.width - pos.width))));
         } else {
             Rectangle.tmp.set(getX(), getY(), getWidth(), getHeight());
             selected = active && Rectangle.tmp.contains(x, y);

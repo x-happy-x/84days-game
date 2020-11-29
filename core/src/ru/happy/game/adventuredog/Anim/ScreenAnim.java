@@ -6,19 +6,15 @@ import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.UI.Layout;
 
 public class ScreenAnim {
+    private static final Color color = new Color();
+    public static int level;
     private static boolean fadeIn, startAnim;
     private static float alpha = 1.0f, delta = 0.05f;
     private static Layout bgTexture;
-    private static final Color color = new Color();
-    public static int level;
 
     public static void load() {
         fadeIn = false;
         bgTexture = new Layout();
-    }
-
-    public static void setDelta(float delta) {
-        ScreenAnim.delta = delta;
     }
 
     public static float getAlpha() {
@@ -39,16 +35,20 @@ public class ScreenAnim {
         return delta;
     }
 
+    public static void setDelta(float delta) {
+        ScreenAnim.delta = delta;
+    }
+
     public static boolean getState() {
         return startAnim;
     }
 
-    public static boolean isClosing() {
-        return fadeIn;
-    }
-
     public static void setState(boolean x) {
         startAnim = x;
+    }
+
+    public static boolean isClosing() {
+        return fadeIn;
     }
 
     public static boolean show(MainGDX mainGDX) {

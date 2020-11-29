@@ -14,15 +14,15 @@ import static ru.happy.game.adventuredog.Tools.AssetsTool.isAndroid;
 
 public class Person extends Actor {
     public int layer, scoreName, scoreMulti;
-    private float x_orig;
-    private float y_orig;
-    private float h_orig;
-    private float w_orig;
     boolean visible, action, guess, rotated, showed;
     String[] names;
     String multi;
     Sprite sprite;
     Rectangle rect;
+    private float x_orig;
+    private float y_orig;
+    private float h_orig;
+    private float w_orig;
 
     public Person(TextureAtlas.AtlasRegion region, int x, int y, int w, int h, String name, String multi, int layer) {
         rotated = region.rotate;

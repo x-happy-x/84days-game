@@ -65,6 +65,10 @@ public class Layout {
         drawRectangle(renderer, color, 0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
     }
 
+    public Color getPbColor() {
+        return pbColor;
+    }
+
     public void drawRectangle(ShapeRenderer renderer, Color color, Rectangle rect) {
         drawRectangle(renderer, color, rect.x, rect.y, rect.width, rect.height);
     }
@@ -251,6 +255,10 @@ public class Layout {
         drawProgressLine(renderer, 1f, pb.x - pbMargin1 - pbMargin2, pb.y - pbMargin1 - pbMargin2, pb.width + (pbMargin1 + pbMargin2) * 2, pb.height + (pbMargin1 + pbMargin2) * 2, pbColor);
         drawProgressLine(renderer, 1f, pb.x - pbMargin1, pb.y - pbMargin1, pb.width + pbMargin1 * 2, pb.height + pbMargin1 * 2, Color.WHITE);
         drawProgressLine(renderer, progress, pb.x, pb.y, pb.width, pb.height, pbColor);
+    }
+
+    public Rectangle getPb() {
+        return pb;
     }
 
     // Обновление цветов для градиента

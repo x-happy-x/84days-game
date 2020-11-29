@@ -14,7 +14,6 @@ public class TextEditor extends Button {
     String text, mask, charset;
     GlyphLayout hint;
     Color hintColor;
-    Action action;
     float rotate;
     int maxLen;
 
@@ -102,7 +101,7 @@ public class TextEditor extends Button {
 
     // Изменить текст
     @Override
-    public void setText(String text, MainGDX game) {
+    public Button setText(String text, MainGDX game) {
         if (mask.length() == 0) {
             super.setText(text, game);
         } else {
@@ -114,6 +113,7 @@ public class TextEditor extends Button {
             super.setText(maskedText, game);
         }
         this.text = text;
+        return null;
     }
 
     // Получить текст
@@ -188,10 +188,5 @@ public class TextEditor extends Button {
         }
         if (text.length() == 0 && mask.length() == 0)
             game.world.setText(hint, drawing.x + drawing.width / 2f, drawing.y + drawing.height / 2f, true, true, GameWorld.FONTS.SMEDIAN);
-    }
-
-    // Интерфейс слушателя
-    public interface Action extends Button.Action {
-        void isInput(String text);
     }
 }

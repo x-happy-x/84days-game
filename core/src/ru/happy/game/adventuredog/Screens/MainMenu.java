@@ -17,14 +17,15 @@ import com.badlogic.gdx.math.Vector2;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import ru.happy.game.adventuredog.Anim.ScreenAnim;
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.GameWorld;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
-import ru.happy.game.adventuredog.Tools.LevelSwitcher;
 import ru.happy.game.adventuredog.UI.Button;
 import ru.happy.game.adventuredog.UI.ImageButton;
+import ru.happy.game.adventuredog.UI.VideoPlayer;
 
 import static java.lang.Math.abs;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.getClick;
@@ -49,9 +50,10 @@ public class MainMenu implements Screen {
     ImageButton live_btn, ticket_btn, help_btn, pic_btn;
     Button play_btn, shop_btn, exit_btn, user_btn, curLevel;
     SimpleDateFormat format;
-    Thread updateTime;
     String liveTime = "", helpTime = "", ticketTime = "";
     double timer;
+    VideoPlayer video;
+    ImageButton pMail;
 
     public MainMenu(MainGDX mainGDX) {
         game = mainGDX;
@@ -87,7 +89,7 @@ public class MainMenu implements Screen {
         for (int i = 1; i <= levels + 1; i++) {
             vectors.add(new Vector2(i * (_size_.x + padding), _size_.y));
             if (i <= levels)
-                bgs.add(new Texture(AssetsTool.getFile(AssetsTool.isExists("menu/levels/" + i + ".png") ? "menu/levels/" + i + ".png" : "menu/levels/0.png")));
+                bgs.add(new Texture(AssetsTool.getFileHandler(AssetsTool.isExists("menu/levels/" + i + ".png") ? "menu/levels/" + i + ".png" : "menu/levels/0.png")));
         }
         cursor = new Vector2();
         world.resetMultiplexer();
@@ -120,6 +122,10 @@ public class MainMenu implements Screen {
             }
         });
         timer = 0;
+        video = new VideoPlayer(game, 0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
+
+        //Gdx.files.internal("test.zip").copyTo(AssetsTool.getFileHandler("cache/video"));
+        //video.load(AssetsTool.getFile("cache/video",false));
     }
 
     @Override
@@ -147,12 +153,16 @@ public class MainMenu implements Screen {
         drawButtons(delta);
         drawLevels(delta);
         scrollSystem();
+        if (video.isLoaded()) {
+            if (!video.isPlaying()) video.play();
+            video.draw(delta);
+        }
         game.end();
         if (ScreenAnim.getState()) {
             game.drawShape();
             Gdx.gl.glEnable(GL20.GL_BLEND);
             if (ScreenAnim.show(game)) {
-                if (ScreenAnim.isClosing()) LevelSwitcher.setLevel(game, selectedLvl + 1);
+                if (ScreenAnim.isClosing()) LoadScreen.setLevel(game, selectedLvl + 1);
                 else ScreenAnim.setState(false);
             }
             game.endShape();
@@ -185,26 +195,6 @@ public class MainMenu implements Screen {
     @Override
     public void resize(int width, int height) {
 
-    }
-
-    ImageButton pName, pMail, pPass, pSet;
-
-    void initButtonsProfile() {
-        pMail = new ImageButton("", texture.findRegion("white_btn"), texture.findRegion("editIcon"), world);
-        pMail.setSize(MainGDX.HEIGHT / 6f, MainGDX.HEIGHT / 6f);
-        pMail.setPosition(MainGDX.WIDTH / 3f, -pMail.getHeight());
-        pMail.setAlignI(Button.ALIGN.CENTER, Button.ALIGN.CENTER);
-        pMail.setIconSize(pic_btn.getWidth() * 0.75f);
-        pic_btn.move(MainGDX.WIDTH / 3f, MainGDX.HEIGHT / 2.8f, MainGDX.WIDTH / 3f, MainGDX.WIDTH / 3f, 1);
-        user_btn.move(MainGDX.WIDTH / 4f, MainGDX.HEIGHT / 3f, MainGDX.WIDTH / 2f, user_btn.getHeight(), 1);
-        pMail.move(pMail.getX(), MainGDX.HEIGHT / 4.5f, pMail.getWidth(), pMail.getHeight(), 1);
-    }
-    void drawProfile(float delta) {
-        pic_btn.setCursor(cursor);
-        user_btn.setCursor(cursor);
-        pic_btn.draw(game, delta);
-        user_btn.draw(game, delta);
-        pMail.draw(game, delta);
     }
 
     void scrollSystem() {
@@ -302,7 +292,7 @@ public class MainMenu implements Screen {
     }
 
     void initButtons() {
-        format = new SimpleDateFormat("HH:mm");
+        format = new SimpleDateFormat("HH:mm", Locale.getDefault());
         play_btn = new Button("ИГРАТЬ", texture.findRegion("green_btn"), world, Color.WHITE, new Button.Action() {
             @Override
             public void isClick() {
@@ -314,7 +304,6 @@ public class MainMenu implements Screen {
 
             @Override
             public void isSelected() {
-
             }
         });
         play_btn.setWidth(MainGDX.WIDTH / 3f);

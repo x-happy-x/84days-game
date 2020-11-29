@@ -23,7 +23,7 @@ public class Dog {
     float moveX, moveY, curAnim;
 
     public Dog(MainGDX game, float x, float y, int h, int w, String objectName, OrthographicCamera cam) {
-        atlas = (TextureAtlas) game.assets.get("graphic");
+        atlas = game.assets.get("graphic");
         String[] animList = AssetsTool.readFile("objects/" + objectName + "/graphic.prop").split("\n\n");
         property = new HashMap<>();
         for (String anim : animList) {

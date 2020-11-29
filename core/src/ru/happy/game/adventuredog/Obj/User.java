@@ -5,9 +5,12 @@ import com.badlogic.gdx.Preferences;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import ru.happy.game.adventuredog.MainGDX;
+
 public class User {
-    private int success, active, id, age, sex, lives, helps, tickets, version, flvl, olvl, dogType, perm;
-    private String name, mail, pass, regtime, lastdate, type, user, message, liveDate, helpDate, ticketDate;
+    SimpleDateFormat format;
+    private int success, active, id, user, age, sex, lives, helps, tickets, version, flvl, olvl, dogType, perm;
+    private String name, mail, pass, regtime, lastdate, type, message, liveDate, helpDate, ticketDate;
 
     public void set(User user) {
         this.success = user.success;
@@ -36,12 +39,14 @@ public class User {
     }
 
     public void reset() {
-        this.success = this.active = this.id = this.age = this.sex = this.lives = this.helps = this.tickets = this.version = this.flvl = this.olvl = this.dogType = 0;
-        this.name = this.mail = this.pass = this.regtime = this.lastdate = this.liveDate = this.ticketDate = this.helpDate = this.type = this.user = this.message = "";
+        this.success = this.active = this.id = this.age = this.sex = this.lives = this.helps = this.tickets = this.version = this.flvl = this.olvl = this.user = this.dogType = 0;
+        this.name = this.mail = this.pass = this.regtime = this.lastdate = this.liveDate = this.ticketDate = this.helpDate = this.type  = this.message = "";
     }
 
     public void setInWorld(Preferences prefs) {
         if (success == 1) {
+            MainGDX.uID = user;
+            prefs.putInteger("uid", user);
             prefs.putInteger("finished_level", flvl);
             prefs.putInteger("opened_level", olvl);
             prefs.putInteger("selected_dog", dogType);
@@ -68,50 +73,6 @@ public class User {
         lives -= c;
     }
 
-    public void setSuccess(int success) {
-        this.success = success;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPass(String pass) {
-        this.pass = pass;
-    }
-
-    public void setMail(String mail) {
-        this.mail = mail;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void setHelps(int helps) {
-        this.helps = helps;
-    }
-
-    public void setTickets(int tickets) {
-        this.tickets = tickets;
-    }
-
-    public void setLives(int lives) {
-        this.lives = lives;
-    }
-
-    public void setSex(int sex) {
-        this.sex = sex;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
     public int getDogType() {
         return dogType;
     }
@@ -128,8 +89,16 @@ public class User {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public int getLives() {
         return lives;
+    }
+
+    public void setLives(int lives) {
+        this.lives = lives;
     }
 
     public int getActive() {
@@ -140,16 +109,32 @@ public class User {
         return age;
     }
 
+    public void setAge(int age) {
+        this.age = age;
+    }
+
     public int getSex() {
         return sex;
+    }
+
+    public void setSex(int sex) {
+        this.sex = sex;
     }
 
     public int getHelps() {
         return helps;
     }
 
+    public void setHelps(int helps) {
+        this.helps = helps;
+    }
+
     public int getSuccess() {
         return success;
+    }
+
+    public void setSuccess(int success) {
+        this.success = success;
     }
 
     public int getVersion() {
@@ -158,6 +143,10 @@ public class User {
 
     public int getTickets() {
         return tickets;
+    }
+
+    public void setTickets(int tickets) {
+        this.tickets = tickets;
     }
 
     public Date getRegtime() {
@@ -184,23 +173,37 @@ public class User {
         return name == null ? "" : name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getMail() {
         return mail == null ? "" : mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     public String getPass() {
         return pass == null ? "" : pass;
     }
 
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
+
     public String getMessage() {
         return message == null ? "" : message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getType() {
         return type == null ? "" : type;
     }
-
-    SimpleDateFormat format;
 
     private Date getDate(String date) {
         if (date == null || date.length() < 10) return new Date();

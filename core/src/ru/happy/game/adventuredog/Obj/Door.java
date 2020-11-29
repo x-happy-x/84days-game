@@ -12,10 +12,10 @@ import ru.happy.game.adventuredog.MainGDX;
 
 public class Door {
 
+    public static ArrayList<Integer> opened;
     Map<String, Map<String, String>> doors = new HashMap<>();
     Map<String, Sprite> sprites = new HashMap<>();
     ArrayList<String> names = new ArrayList<>();
-    public static ArrayList<Integer> opened;
 
     public Door() {
         opened = new ArrayList<>();
