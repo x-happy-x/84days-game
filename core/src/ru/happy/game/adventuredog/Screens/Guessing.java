@@ -50,7 +50,7 @@ public class Guessing implements Screen {
     Sprite bgRoom;
     Interpolation interpolation = Interpolation.exp5;
     //Params
-    int h, w, h0, w0, h_max, w_max, select, gcount, allcount,
+    int h, w, h0, w0, h_max, w_max, select, GUESS_COUNT, PERSONS_COUNT,
             showedC, errCount, selectedItemMenu = 0, score, errorType;
 
     float ratioRoom, ratioDisplay, errTimer, pauseTime, textInMenuTime;
@@ -60,7 +60,7 @@ public class Guessing implements Screen {
 
     String //inputTextN, inputTextM,
             errorText, textInMenu, textInMenu2;
-    String[] menulist, errList = new String[]{};
+    String[] MENU, errList = new String[]{};
 
     ArrayList<Person> persons;
     Map<String, String[]> texts;
@@ -83,8 +83,8 @@ public class Guessing implements Screen {
 
     public Guessing(MainGDX mainGDX) {
         // Инициализация пустых переменных
-        gcount = 0;
-        allcount = 0;
+        GUESS_COUNT = 0;
+        PERSONS_COUNT = 0;
         errCount = 0;
         step = 0;
         score = 0;
@@ -128,7 +128,7 @@ public class Guessing implements Screen {
         for (String i : textTmp.split("\n\n")) {
             texts.put(i.substring(i.indexOf("[") + 1, i.indexOf("]")), i.substring(i.indexOf("\n") + 1).split("\n"));
         }
-        menulist = texts.get("END");
+        MENU = texts.get("END");
         // Добавляем персонажей
         persons = new ArrayList<>();
         textTmp = game.assets.getLevelContent("persons.prop");
@@ -136,7 +136,7 @@ public class Guessing implements Screen {
             Map<String, String> params = AssetsTool.getParamFromFile(person);
             persons.add(new Person(atlas.findRegion(params.get("pic")), Integer.parseInt(params.get("x")), Integer.parseInt(params.get("y")),
                     Integer.parseInt(params.get("w")), Integer.parseInt(params.get("h")), params.get("name"), params.get("mult"), Integer.parseInt(params.get("layer"))));
-            allcount++;
+            PERSONS_COUNT++;
         }
         Collections.reverse(persons);
         // Добавляем двери
@@ -173,7 +173,7 @@ public class Guessing implements Screen {
                 Vector2 v = toLocal(x, y);
                 v.y = MainGDX.HEIGHT - v.y;
                 if (!selected) {
-                    if (gcount >= showedC) {
+                    if (GUESS_COUNT >= showedC) {
                         String nDoor = doors.isClicked(v.x, v.y);
                         if (nDoor != null) {
                             doors.open(nDoor);
@@ -254,13 +254,15 @@ public class Guessing implements Screen {
                     float initDist = (float) Math.sqrt(Math.pow(initialPointer2.x - initialPointer1.x, 2) + Math.pow(initialPointer2.y - initialPointer1.y, 2));
                     float dist = (float) Math.sqrt(Math.pow(pointer2.x - pointer1.x, 2) + Math.pow(pointer2.y - pointer1.y, 2));
                     float ratio = initDist / dist;
-                    center.set(point_orig.x + w0 / 2, point_orig.y + h0 / 2);
+                    center.set(point_orig.x + w0 / 2f, point_orig.y + h0 / 2f);
                     //new Vector2(point_orig.x+(pointer1.x+pointer2.x)/2,point_orig.y+(pointer1.y+pointer2.y)/2);
                     h = (int) (h0 * ratio);
                     w = (int) (w0 * ratio);
                     h = h > h_max ? h_max : Math.max(h, h_max / 5);
                     w = w > w_max ? w_max : Math.max(w, w_max / 5);
-                    center.set(center.x + w / 2 < roomSize[0] ? center.x - w / 2 >= 0 ? center.x - w / 2 : 0 : roomSize[0] - w, center.y + h / 2 < roomSize[1] ? center.y - h / 2 >= 0 ? center.y - h / 2 : 0 : roomSize[1] - h);
+                    center.set(
+                            center.x + w / 2f < roomSize[0] ? center.x - w / 2f >= 0 ? center.x - w / 2f : 0 : roomSize[0] - w,
+                            center.y + h / 2f < roomSize[1] ? center.y - h / 2f >= 0 ? center.y - h / 2f : 0 : roomSize[1] - h);
                     bgRoom.setRegion((int) (center.x), (int) (center.y), w, h);
                 }
                 return false;
@@ -314,7 +316,9 @@ public class Guessing implements Screen {
                                 w = (int) (bgRoom.getRegionWidth() * 1.2f);
                                 h = h > h_max ? h_max : Math.max(h, h_max / 5);
                                 w = w > w_max ? w_max : Math.max(w, w_max / 5);
-                                center.set(center.x + w / 2 < roomSize[0] ? center.x - w / 2 >= 0 ? center.x - w / 2 : 0 : roomSize[0] - w, center.y + h / 2 < roomSize[1] ? center.y - h / 2 >= 0 ? center.y - h / 2 : 0 : roomSize[1] - h);
+                                center.set(
+                                        center.x + w / 2f < roomSize[0] ? center.x - w / 2f >= 0 ? center.x - w / 2f : 0 : roomSize[0] - w,
+                                        center.y + h / 2f < roomSize[1] ? center.y - h / 2f >= 0 ? center.y - h / 2f : 0 : roomSize[1] - h);
                                 bgRoom.setRegion((int) (center.x), (int) (center.y), w, h);
                                 break;
                             case Input.Keys.PLUS:
@@ -323,7 +327,8 @@ public class Guessing implements Screen {
                                 w = (int) (bgRoom.getRegionWidth() * 0.8f);
                                 h = h > h_max ? h_max : Math.max(h, h_max / 5);
                                 w = w > w_max ? w_max : Math.max(w, w_max / 5);
-                                center.set(center.x + w / 2 < roomSize[0] ? center.x - w / 2 >= 0 ? center.x - w / 2 : 0 : roomSize[0] - w, center.y + h / 2 < roomSize[1] ? center.y - h / 2 >= 0 ? center.y - h / 2 : 0 : roomSize[1] - h);
+                                center.set(center.x + w / 2f < roomSize[0] ? center.x - w / 2f >= 0 ? center.x - w / 2f : 0 : roomSize[0] - w,
+                                        center.y + h / 2f < roomSize[1] ? center.y - h / 2f >= 0 ? center.y - h / 2f : 0 : roomSize[1] - h);
                                 bgRoom.setRegion((int) (center.x), (int) (center.y), w, h);
                                 break;
                         }
@@ -354,9 +359,9 @@ public class Guessing implements Screen {
             @Override
             public boolean mouseMoved(int screenX, int screenY) {
                 Vector2 v = toLocal(screenX, screenY);
-                for (int i = menulist.length - menu.length; i < menulist.length; i++) {
-                    addRectArea(menu[i - (menulist.length - menu.length)], 8);
-                    if (menu[i - (menulist.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
+                for (int i = MENU.length - menu.length; i < MENU.length; i++) {
+                    addRectArea(menu[i - (MENU.length - menu.length)], 8);
+                    if (menu[i - (MENU.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
                         selectedItemMenu = i;
                         break;
                     }
@@ -368,11 +373,11 @@ public class Guessing implements Screen {
             @Override
             public boolean tap(float x, float y, int count, int button) {
                 Vector2 v = toLocal(x, y);
-                for (int i = menulist.length - menu.length; i < menulist.length; i++) {
-                    addRectArea(menu[i - (menulist.length - menu.length)], 8);
-                    if (menu[i - (menulist.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
+                for (int i = MENU.length - menu.length; i < MENU.length; i++) {
+                    addRectArea(menu[i - (MENU.length - menu.length)], 8);
+                    if (menu[i - (MENU.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
                         selectedItemMenu = i;
-                        switch (menulist[i].toLowerCase()) {
+                        switch (MENU[i].toLowerCase()) {
                             case "продолжить":
                                 paused = false;
                                 break;
@@ -423,25 +428,23 @@ public class Guessing implements Screen {
             @Override
             public boolean longPress(float x, float y) {
                 Vector2 v = toLocal(x, y);
-                for (int i = menulist.length - menu.length; i < menulist.length; i++) {
-                    addRectArea(menu[i - (menulist.length - menu.length)], 8);
-                    if (menu[i - (menulist.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
+                for (int i = MENU.length - menu.length; i < MENU.length; i++) {
+                    addRectArea(menu[i - (MENU.length - menu.length)], 8);
+                    if (menu[i - (MENU.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
                         selectedItemMenu = i;
-                        switch (menulist[i].toLowerCase()) {
-                            case "пропустить уровень":
-                                if (world.getTicket() < 10) {
-                                    isTextInMenu = true;
-                                    textInMenu = "У вас не достаточно пропусков";
-                                    textInMenu2 = "";
-                                    textInMenuTime = 0;
-                                } else {
-                                    paused = false;
-                                    world.useTicket(10);
-                                    world.skipLevel = true;
-                                    step = 100;
-                                    select = allcount - 1;
-                                }
-                                break;
+                        if ("пропустить уровень".equals(MENU[i].toLowerCase())) {
+                            if (world.getTicket() < 10) {
+                                isTextInMenu = true;
+                                textInMenu = "У вас не достаточно пропусков";
+                                textInMenu2 = "";
+                                textInMenuTime = 0;
+                            } else {
+                                paused = false;
+                                world.useTicket(10);
+                                world.skipLevel = true;
+                                step = 100;
+                                select = PERSONS_COUNT - 1;
+                            }
                         }
                     }
                 }
@@ -451,9 +454,9 @@ public class Guessing implements Screen {
             @Override
             public boolean pan(float x, float y, float deltaX, float deltaY) {
                 Vector2 v = toLocal(x, y);
-                for (int i = menulist.length - menu.length; i < menulist.length; i++) {
-                    addRectArea(menu[i - (menulist.length - menu.length)], 8);
-                    if (menu[i - (menulist.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
+                for (int i = MENU.length - menu.length; i < MENU.length; i++) {
+                    addRectArea(menu[i - (MENU.length - menu.length)], 8);
+                    if (menu[i - (MENU.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
                         selectedItemMenu = i;
                         break;
                     }
@@ -522,9 +525,10 @@ public class Guessing implements Screen {
         if (showedC == 0) for (Person i : persons) if (i.isShowed()) showedC++;
         if (selected) {
             drawLayout();
-        } else {
-            //world.getBatch().draw(menuAtlas.findRegion("live"),0,0,0,0,50,50,100,100,90);
         }
+        //else {
+        //    world.getBatch().draw(menuAtlas.findRegion("live"),0,0,0,0,50,50,100,100,90);
+        //}
         if (getWin) {
             errTimer += delta;
             if (errTimer > 2) {
@@ -543,7 +547,7 @@ public class Guessing implements Screen {
                 world.setText(errorText, 1f, MainGDX.WIDTH / 20f + (MainGDX.WIDTH - MainGDX.WIDTH / 10f) / 2f, MainGDX.HEIGHT / 6f + MainGDX.HEIGHT / 16f, tmp, true, GameWorld.FONTS.SMEDIAN);
                 persons.get(select).drawToCenter(world.getBatch(), errTimer, MainGDX.HEIGHT / 6f + MainGDX.HEIGHT / 8f);
             }
-        } else if (!selected && world.skipLevel && allcount != gcount && step == 0) {
+        } else if (!selected && world.skipLevel && PERSONS_COUNT != GUESS_COUNT && step == 0) {
             isTextInMenu = false;
             world.resetMultiplexer();
             selected = false;
@@ -557,7 +561,7 @@ public class Guessing implements Screen {
                 p.setVisible(false);
                 p.setGuess(true);
                 if (p.scoreName + p.scoreMulti == 200) score++;
-                gcount++;
+                GUESS_COUNT++;
                 step = 100;
             }
         } else if (!selected && world.skipLevel) {
@@ -578,33 +582,33 @@ public class Guessing implements Screen {
         }
         if (paused) {
             if (!pauseShow) {
-                menulist = texts.get("PAUSE");
+                MENU = texts.get("PAUSE");
                 setInputMenu();
                 pauseTime = 0;
                 pauseShow = true;
             }
             if (pauseTime < 1) pauseTime += Gdx.graphics.getDeltaTime();
             if (pauseTime > 1) pauseTime = 1;
-            menu = layout.drawPause(game, menulist, pauseTime, interpolation, gcount, score, allcount - gcount, selectedItemMenu, pauseC, mainBG);
+            menu = layout.drawPause(game, MENU, pauseTime, interpolation, GUESS_COUNT, score, PERSONS_COUNT - GUESS_COUNT, selectedItemMenu, pauseC, mainBG);
             drawTextInMenu();
         } else if (pauseShow) {
             if (!ScreenAnim.getState() && pauseTime > 0) pauseTime -= Gdx.graphics.getDeltaTime();
             else if (ScreenAnim.getState()) pauseTime = 1 - ScreenAnim.getAlpha();
             if (pauseTime < 0) {
                 pauseShow = false;
-                menulist = texts.get("END");
+                MENU = texts.get("END");
                 setInputLevel();
                 pauseTime = 0;
             }
-            menu = layout.drawPause(game, menulist, pauseTime, interpolation, gcount, score, allcount - gcount, selectedItemMenu, pauseC, mainBG);
+            menu = layout.drawPause(game, MENU, pauseTime, interpolation, GUESS_COUNT, score, PERSONS_COUNT - GUESS_COUNT, selectedItemMenu, pauseC, mainBG);
             drawTextInMenu();
         }
-        if ((gcount == allcount || world.getLives() <= 0) && !getWin) {
+        if ((GUESS_COUNT == PERSONS_COUNT || world.getLives() <= 0) && !getWin) {
             if (world.prefs.getInteger("finished_level", 0) == 0) {
                 world.prefs.putInteger("finished_level", game.assets.getLevel());
                 world.prefs.flush();
             }
-            if (score == allcount && !world.usedBonus && !world.prefs.getBoolean("bonusLevel" + game.assets.getLevel(), false)) {
+            if (score == PERSONS_COUNT && !world.usedBonus && !world.prefs.getBoolean("bonusLevel" + game.assets.getLevel(), false)) {
                 world.prefs.putBoolean("bonusLevel" + game.assets.getLevel(), true);
                 world.addHelp();
                 world.getBonus = true;
@@ -616,7 +620,7 @@ public class Guessing implements Screen {
             else if (ScreenAnim.getState()) errTimer = 1 - ScreenAnim.getAlpha();
             if (errTimer > 1) errTimer = 1;
             else if (errTimer < 0) errTimer = 0;
-            menu = layout.drawEnd(game, menulist, "ОТЛИЧНО УГАДАНО: " + score, errTimer, interpolation, world.getLives() > 0, selectedItemMenu, world.getLives() > 0 ? win : lose, mainBG);
+            menu = layout.drawEnd(game, MENU, "ОТЛИЧНО УГАДАНО: " + score, errTimer, interpolation, world.getLives() > 0, selectedItemMenu, world.getLives() > 0 ? win : lose, mainBG);
             drawTextInMenu();
         }
     }
@@ -714,7 +718,7 @@ public class Guessing implements Screen {
                     p.setVisible(false);
                     p.setGuess(true);
                     if (p.scoreName + p.scoreMulti == 200) score++;
-                    gcount++;
+                    GUESS_COUNT++;
                     world.useTicket();
                     getWin = true;
                     errCount = 0;
@@ -746,7 +750,7 @@ public class Guessing implements Screen {
                         p.setVisible(false);
                         p.setGuess(true);
                         if (p.scoreName + p.scoreMulti == 200) score++;
-                        gcount++;
+                        GUESS_COUNT++;
                         getWin = true;
                         errCount = 0;
                         step = 100;
@@ -912,8 +916,8 @@ public class Guessing implements Screen {
         game.drawShape();
         guesses.setX(leftMenu ? xxx + MainGDX.WIDTH / 2f - MainGDX.HEIGHT / 20f - MainGDX.WIDTH / 6f : xxx + MainGDX.HEIGHT / 20f);
         layout.drawRectangle(game.renderer, mainBG.sub(darker), guesses, 5);
-        if (gcount > 0)
-            layout.drawRectangle(game.renderer, win, guesses.x, guesses.y, guesses.width / allcount * gcount, guesses.height, 5);
+        if (GUESS_COUNT > 0)
+            layout.drawRectangle(game.renderer, win, guesses.x, guesses.y, guesses.width / PERSONS_COUNT * GUESS_COUNT, guesses.height, 5);
         // Пауза
         pauseBTN.setX(leftMenu ? xxx + MainGDX.HEIGHT / 20f : xxx + MainGDX.WIDTH / 2f - MainGDX.HEIGHT / 20f - pauseBTN.width);
         layout.drawPause(game.renderer, 1, 4, pauseBTN, Color.WHITE, mainBG);
@@ -932,7 +936,7 @@ public class Guessing implements Screen {
             }
         }
 
-        world.setText(gcount + "", 1f, guesses.getX() + guesses.getWidth() * 0.9f - world.getTextSize(gcount + "", 1f, GameWorld.FONTS.SMEDIAN)[0], guesses.getY() + guesses.getHeight() / 2f, Color.WHITE, false, true, GameWorld.FONTS.SMEDIAN);
+        world.setText(GUESS_COUNT + "", 1f, guesses.getX() + guesses.getWidth() * 0.9f - world.getTextSize(GUESS_COUNT + "", 1f, GameWorld.FONTS.SMEDIAN)[0], guesses.getY() + guesses.getHeight() / 2f, Color.WHITE, false, true, GameWorld.FONTS.SMEDIAN);
         world.setText("Угадано:", 1f, guesses.getX() + MainGDX.HEIGHT / 40f, guesses.getY() + guesses.getHeight() / 2f, Color.WHITE, false, true, GameWorld.FONTS.SMEDIAN);
 
         world.setText("Название мультфильма:", 1f, multi.getX() + MainGDX.WIDTH / 100f, multi.getY() + multi.getHeight() * 1.35f, Color.WHITE, false, GameWorld.FONTS.SMALL);
@@ -948,17 +952,17 @@ public class Guessing implements Screen {
     }
 
     private String formatterString(String i, String j) {
-        String n = "";
-        String m = "";
+        StringBuilder n = new StringBuilder();
+        StringBuilder m = new StringBuilder();
         for (String s : i.split(j)) {
             if (world.getTextSize(n + s, 1f, GameWorld.FONTS.SMEDIAN)[0] > name.getWidth() * 0.95f) {
-                m += n + "\n";
-                n = "";
+                m.append(n).append("\n");
+                n = new StringBuilder();
             }
-            n += s + j;
+            n.append(s).append(j);
         }
-        m += n.trim();
-        return m;
+        m.append(n.toString().trim());
+        return m.toString();
     }
 
     private void bgFix() {

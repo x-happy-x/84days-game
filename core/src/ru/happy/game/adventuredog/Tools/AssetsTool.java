@@ -39,11 +39,13 @@ public class AssetsTool {
         manager = new AssetManager(new ExtFileHandleResolver());
     }
 
+
     // ----------------------------- СТАТИЧЕСКИЕ ФУНКЦИИ -------------------------------------------
     // Игра запущена на Android
     public static boolean isAndroid() {
         return Gdx.app.getType().equals(Application.ApplicationType.Android);
     }
+
 
     // Сохранения и загрузка хэш-таблицы
     public static void setParamToFile(String path, Map<String, String> map) {
@@ -61,6 +63,7 @@ public class AssetsTool {
         }
         return map;
     }
+
 
     // Кодировка текста
     public static String encodeString(String x, boolean y) {
@@ -83,25 +86,30 @@ public class AssetsTool {
         return Gdx.files.absolute(path);
     }
 
+
     // Получить файл-хандлер из директории игры
     public static FileHandle getFileHandler(String path) {
         return Gdx.files.absolute(getDataPath() + "/" + path);
     }
+
 
     // Получить файл
     public static File getFile(String path) {
         return getFileHandler(path).file();
     }
 
+
     // Получить содержимое файла
     public static String readFile(String path) {
         return getFileHandler(path).readString().replace("\r", "");
     }
 
+
     // Проверка на существование такой папки или файла
     public static boolean isExists(String path) {
         return getFileHandler(path).exists();
     }
+
 
     // Получить путь расположения игровых файлов
     private static String getDataPath() {
@@ -130,10 +138,12 @@ public class AssetsTool {
         folder.delete();
     }
 
+
     // Распаковка обновления
     public static boolean extractObb(File obbFile) {
         return unpackZip(obbFile, getDataPath());
     }
+
 
     // Распаковка zip-архива
     public static boolean unpackZip(File zip, String path) {
@@ -196,6 +206,7 @@ public class AssetsTool {
         return false;
     }
 
+
     // Размер файла из байтов в любую другую
     public static String formatSize(long bytes) {
         long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
@@ -212,47 +223,57 @@ public class AssetsTool {
         return String.format("%.1f %cБ", value / 1024.0, ci.current());
     }
 
+
     // Установить менеджер параметров
     public void setManager(AssetsManagerX manager) {
         managerX = manager;
     }
+
 
     // Получить уровень
     public int getLevel() {
         return level;
     }
 
+
     // Сменить уровень
     public void setLevel(int level) {
         this.level = level;
     }
+
 
     // Получить путь к файлам текущего уровня
     public String getLevelPath() {
         return managerX.getString(level, "path");
     }
 
+
     // Проверка на существование файла в текущем уровне
     public boolean isLevelFile(String file) {
         return isExists(getLevelPath() + "/" + file);
     }
+
 
     // Получить содержимое файла из текущего уровня
     public String getLevelContent(String file) {
         return readFile(getLevelPath() + "/" + file);
     }
 
+
     // Получить содержимое файла из общих файлов
     public String getContent(String file) {
         return readFile("menu/" + file);
     }
 
+
     // Добавить ресурсы в менеджер
     public void load() {
         if (level >= 0) {
-            for (String o : managerX.getFiles(level)) {
-                manager.load(managerX.get(level, o));
-            }
+            try {
+                for (String o : managerX.getFiles(level)) {
+                    manager.load(managerX.get(level, o));
+                }
+            } catch (NullPointerException ignored){}
         } else manager.load(bg);
         if (level != 0) {
             manager.load(managerX.getGUI());
@@ -263,6 +284,7 @@ public class AssetsTool {
         manager.load(managerX.get(name));
     }
 
+
     // Получить ресурс
     public <T> T get(AssetDescriptor<T> descriptor) {
         return manager.get(descriptor);
@@ -272,27 +294,32 @@ public class AssetsTool {
         return manager.get((AssetDescriptor<T>) managerX.get(name));
     }
 
+
     // Очистить ресурсы и прогресс
     public void fresh() {
         manager.clear();
         progressNow = 0;
     }
 
+
     // Загрузка ресурсов
     public void finishLoad(AssetDescriptor<?> assetDescriptor) {
         manager.finishLoadingAsset(assetDescriptor.fileName);
     }
+
 
     // Фоновая загрузка ресурсов
     public boolean updating() {
         return !manager.update();
     }
 
+
     // Прогресс
     public float getProgress(boolean smooth) {
         if (smooth) return getProgress();
         return manager.getProgress();
     }
+
 
     // Плавный прогресс
     public float getProgress() {
@@ -311,5 +338,15 @@ public class AssetsTool {
             this.file = f;
             this.path = path;
         }
+    }
+
+    public static String replace(String str, String charset, String r, boolean clearing){
+        for (String char_: charset.split("")){
+            str = str.replace(char_,r);
+        }
+        if (clearing)
+            while (str.contains("  "))
+                str = str.replace("  ", " ");
+        return str;
     }
 }

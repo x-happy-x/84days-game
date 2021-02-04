@@ -40,8 +40,9 @@ import static ru.happy.game.adventuredog.Tools.AssetsTool.encodePlatform;
 import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
 
 public class MainGDX extends Game {
+
     // Параметры экрана
-    public static final int APP_VERSION = 16;
+    public static final int APP_VERSION = 20;
     public static int WIDTH = 1000,
             HEIGHT = 500,
             DISPLAY_CUTOUT_MODE,
@@ -49,8 +50,10 @@ public class MainGDX extends Game {
             VERSION;
     public static String APP_LOG_TAG = "UNNAMED_GAME";
     private final String[] states = new String[]{"Проверка обновлений", "Загрузка файлов", "Проверка файлов", "Авторизация", "Запуск игры"};
+
     // Цвет при очистке экрана
     public Color clearBg;
+
     // Игровые обЪекты
     public ShapeRenderer renderer; // Рендер фигур
     public AssetsTool assets; // Управление ресурсами
@@ -59,6 +62,7 @@ public class MainGDX extends Game {
     public Layout layout; // Рисование сложных фигур
     public User user; // Игрок
     public View view; // Объект для отслеживания сенсорной клавиатуры
+
     // Игровые параметры
     public Interpolation interpolation = Interpolation.exp5; // Вид анимации
     public Map<String, String> property; // Параметры уровней
@@ -87,18 +91,32 @@ public class MainGDX extends Game {
     public MainGDX() {
     }
 
+    private static Process logger;
     public static void enableLogger() {
         //Gdx.app.setApplicationLogger();
         try {
-            Runtime.getRuntime().exec(new String[]{"logcat", "-f", getFile("log.txt").getAbsolutePath()});//, APP_LOG_TAG + ":V", "*:S"});
+            logger = Runtime.getRuntime().exec(new String[]{"logcat", "-f", getFile("log.txt").getAbsolutePath()});//, APP_LOG_TAG + ":V", "*:S"});
+            write("- LOG START -");
         } catch (IOException e) {
             write(e.getLocalizedMessage());
         }
     }
-
+    public static void clearLogger(){
+        /*if (logger == null) return;
+        try {
+            logger.destroy();
+            getFile("log.txt").delete();
+            MainGDX.write(getFile("log.txt").exists()+"");
+            getFile("log.txt").createNewFile();
+            enableLogger();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+    }
     public static void write(String text) {
         Gdx.app.log(APP_LOG_TAG, AssetsTool.encodePlatform(text, true));
     }
+
 
     // Добавить слушатель при изменение размера экрана (при показе и скрытии клавиатуры на андроид)
     public void addSizeChangeListener(View.SizeChangeListener listener) {
@@ -141,8 +159,7 @@ public class MainGDX extends Game {
         user = new User();
         task = new NetTask(new NetTask.NetListener() {
             @Override
-            public void onDownloadComplete(String out) {
-            }
+            public void onDownloadComplete(String out) {}
 
             @Override
             public void onProgressUpdate(int progress) {
@@ -396,6 +413,7 @@ public class MainGDX extends Game {
                 }
                 task.loadingFASize = 0;
                 task.loadingFLSize = 0;
+
                 for (String upd_path_part : upd_path.split(",")) {
                     int i = task.getFileSize(upd_path_part);
                     if (i > 0) {
@@ -406,6 +424,7 @@ public class MainGDX extends Game {
                         return;
                     }
                 }
+
                 ArrayList<File> upd_files = new ArrayList<>();
                 for (int i = 0; i < upd_path.split(",").length; i++) {
                     String url_pack = upd_path.split(",")[i];
@@ -453,7 +472,7 @@ public class MainGDX extends Game {
             if (auth) state = states[stateType + 1];
             manager.setProperty("levels", property.get("levels"));
             Map<String, String> temp;
-            for (int i = 0; i < manager.getInt("levels"); i++) {
+            for (int i = 0; i <= manager.getInt("levels"); i++) {
                 manager.setProperty(i, "path", property.get("level" + i + "Path"));
                 temp = AssetsTool.getParamFromFile(AssetsTool.readFile(manager.getString(i, "path") + "/level.pref"));
                 manager.setProperty(i, "hints", temp.get("hintCount"));

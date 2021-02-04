@@ -36,6 +36,7 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
     private final Button skip;
     private final View parent;
     private boolean playing;
+    private boolean videoShowing;
     private final Handler handler;
     private final Runnable runnable = new Runnable() {
         @Override
@@ -81,7 +82,7 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
 
     @Override
     public void pause() {
-        if (player != null){
+        if (player != null && videoShowing){
             playing = false;
             player.pause();
         }
@@ -89,7 +90,7 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
 
     @Override
     public void play() {
-        if (player != null){
+        if (player != null && videoShowing){
             playing = true;
             handler.post(runnable);
             player.play();
@@ -124,6 +125,7 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
     @Override
     public void stop() {
         playing = false;
+        videoShowing = false;
         activity.runOnUiThread(()->{
             if (player != null) {
                 player.clearMediaItems();
@@ -178,8 +180,9 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
                 duration = player.getDuration();
                 if (parent.getVisibility() == View.GONE)
                     parent.setVisibility(View.VISIBLE);
-                if (!playing){
+                if (!videoShowing){
                     playing = true;
+                    videoShowing = true;
                     handler.post(runnable);
                     if (listener != null) listener.onStart();
                 }

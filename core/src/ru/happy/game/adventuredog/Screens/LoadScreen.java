@@ -48,12 +48,33 @@ public class LoadScreen implements Screen {
         game.world.firstVisible = false;
         game.world.getActors().clear();
         game.world.resetMultiplexer();
-        if (game.getScreen() != null) game.getScreen().dispose();
+        if (game.getScreen() != null)
+            game.getScreen().dispose();
         game.assets.fresh();
         game.assets.setLevel(level);
         game.manager.setLevel(level);
         game.assets.load();
         game.setScreen(new LoadScreen(game));
+    }
+
+    public void runLevel() {
+        switch (game.assets.getLevel()) {
+            case 0:
+                game.setScreen(new MainMenu(game));
+                break;
+            case 1:
+                game.setScreen(new MainScreen(game));
+                break;
+            case 2:
+                game.setScreen(new Guessing(game));
+                break;
+            case 3:
+                game.setScreen(new MusicLevel(game));
+                break;
+            case 4:
+                game.setScreen(new ThreeInRow(game));
+                break;
+        }
     }
 
     @Override
@@ -222,20 +243,7 @@ public class LoadScreen implements Screen {
             }
         } else {
             if (game.assets.getLevel() > 0 && atlas != null) atlas.dispose();
-            switch (game.assets.getLevel()) {
-                case 0:
-                    game.setScreen(new MainMenu(game));
-                    break;
-                case 1:
-                    game.setScreen(new MainScreen(game));
-                    break;
-                case 2:
-                    game.setScreen(new Guessing(game));
-                    break;
-                case 3:
-                    game.setScreen(new MusicLevel(game));
-                    break;
-            }
+            runLevel();
         }
     }
 

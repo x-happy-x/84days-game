@@ -233,7 +233,7 @@ public class MainMenu implements Screen {
                     }
                     selected = true;
                 }
-                click.set(vectors.get(selectedLvl));
+                click.set(vectors.get(vectors.size() > selectedLvl?selectedLvl:vectors.size()-1));
                 if (click.x + 10 > MainGDX.WIDTH / 2f || click.x - 10 < MainGDX.WIDTH / 2f) {
                     float tmp = (MainGDX.WIDTH / 2f - click.x) / 10f;
                     for (Vector2 v : vectors) {

@@ -987,8 +987,7 @@ public class Auth implements Screen {
                     textColor.a = 1f;
                     Color.WHITE.set(1, 1, 1, 1);
                     setLevel(game, ScreenAnim.level);
-                }
-                ScreenAnim.setState(false);
+                } ScreenAnim.setState(false);
             }
             game.endShape();
             Gdx.gl.glDisable(GL30.GL_BLEND);
