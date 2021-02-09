@@ -55,16 +55,9 @@ public class ThreeInRow implements Screen {
             @Override
             public boolean mouseMoved(int screenX, int screenY) {
                 GraphicTool.toLocal(cursor,screenX,screenY);
-                //MTMap.ThreeItem item = map.contain(cursor);
-                System.out.println(cursor.x+" "+cursor.y);
-                for (int i = 0; i < map.rows(); i++) {
-                    for (int j = 0; j < map.columns(); j++) {
-                        if (map.get(i,j).getRect().contains(screenX, Gdx.graphics.getHeight()-screenY)) {
-                            map.check(i,j);
-                            System.out.println(i + " - " + j);
-                            return false;
-                        };
-                    }
+                MTMap.ThreeItem item = map.contain(cursor);
+                if (item != null) {
+                    map.check(item.y,item.x);
                 }
                 return super.mouseMoved(screenX, screenY);
             }

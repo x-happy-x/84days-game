@@ -250,7 +250,7 @@ public class MainGDX extends Game {
                 values = new ValuesManager();
                 loaded = true;
                 bgTexture.dispose();
-                if (auth) LoadScreen.setLevel(this, 0);
+                if (auth) LoadScreen.setLevel(this, 4);
                 else setScreen(new Auth(this));
             }
         }
