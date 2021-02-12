@@ -1,6 +1,6 @@
 package ru.happy.game.adventuredog.Obj;
 
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.MathUtils;
@@ -13,13 +13,16 @@ import java.util.Map;
 
 import ru.happy.game.adventuredog.MainGDX;
 
-public class MTMap {
+public class MTMap implements InputProcessor {
+
+    private static float START_Y, START_X, ITEM_SIZE, OFFSET;
 
     private final ArrayList<String> items;
     private final Map<String, String> types;
     private final ThreeMap map;
     private final TextureAtlas atlas;
-    private static float START_Y, START_X, ITEM_SIZE, OFFSET;
+
+    private ThreeItem item_selected, item_dragged;
 
     public MTMap(String mapFile, TextureAtlas atlas) {
         this.atlas = atlas;
@@ -69,25 +72,33 @@ public class MTMap {
     }
 
     public void draw(MainGDX game, float delta) {
-        for (int i = 0; i < map.rows(); i++) {
+        for (int i = map.rows() - 1; i >= 0; i--) {
             for (int j = 0; j < map.columns(); j++) {
                 ThreeItem item = map.get(i, j);
                 if (item.isMovingEnd()) {
-                    ThreeItem buf = get(i+1,j);
-                    set(i+1,j);
+                    map.swap(i, j, item.y, item.x);
+                    check(i,j);
                 }
-                item.draw(game, delta);
+            }
+        }
+        for (int i = 0; i < map.rows(); i++) {
+            for (int j = 0; j < map.columns(); j++) {
+                map.get(i, j).draw(game, delta);
             }
         }
     }
 
     public ThreeItem contain(Vector2 pos) {
-        if (pos.x < START_X || pos.x > START_X + (map.columns() - 1) * (ITEM_SIZE + OFFSET * 2) ||
-                pos.y < START_Y || pos.y > START_Y + map.rows() * (ITEM_SIZE + OFFSET * 2))
+        return contain(pos.x,pos.y);
+    }
+
+    public ThreeItem contain(float x, float y) {
+        if (x < START_X || x > START_X + (map.columns() - 1) * (ITEM_SIZE + OFFSET * 2) ||
+                y < START_Y || y > START_Y + map.rows() * (ITEM_SIZE + OFFSET * 2))
             return null;
-        int i = (int) ((pos.y - START_Y) / (ITEM_SIZE + OFFSET * 2));
-        int j = (int) ((pos.x - START_X) / (ITEM_SIZE + OFFSET * 2));
-        return get(i, j);
+        int i = (int) ((y - START_Y) / (ITEM_SIZE + OFFSET * 2));
+        int j = (int) ((x - START_X) / (ITEM_SIZE + OFFSET * 2));
+        return map.get(i, j);
     }
 
     public void check(int i, int j) {
@@ -129,44 +140,96 @@ public class MTMap {
         }
         // Наличие горизонтального ряда
         if (left + right >= 2) {
+            int m;
             for (int k = j - left; k <= j + right; k++) {
-                //map.swap(i,k,);
-                //get(i,k).d
-                for (int m = i; m >= 0; m--) {
-                    map.get(m, k).down();
+                for (m = i - 1; m >= 0 && map.get(m, k).type() > 4; m--) {
+                    map.get(m, k).down(1);
                 }
+                map.get(i, k).hide();
             }
         }
         // Наличие вертикального ряда
         if (up + down >= 2) {
-            for (int m = i - up - 1; m >= 0; m--) {
-                map.get(m, j).down(up + down);
+            for (int m = 0; m <= i + down; m++) {
+                ThreeItem item = map.get(m, j);
+                if (m < i - up) {
+                    if (item.type() >= 5) item.down(up + down + 1);
+                } else {
+                    item.hide();
+                }
             }
+//            for (int m = i + down; m >= 0; m--) {
+//                if (m > i - up - 1)
+//                    map.get(m, j).hide(up + down);
+//                else
+//                    map.get(m, j).down(up + down);
+//            }
         }
     }
 
-    public int rows() {
-        return map.rows();
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
     }
 
-    public int columns() {
-        return map.columns();
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
     }
 
-    public ThreeItem get(int i, int j) {
-        return map.get(i, j);
+    @Override
+    public boolean keyTyped(char character) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int x, int y, int pointer, int button) {
+        //MainGDX.write("TOUCH: "+i+" "+i1+" "+i2+" "+i3);
+        item_selected = contain(x,y);
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int x, int y, int pointer, int button) {
+        item_selected = null;
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int x, int y, int pointer) {
+        //MainGDX.write("DRAG: "+i+" "+i1+" "+i2);
+        item_dragged = contain(x,y);
+        if (item_selected != null && item_dragged != null && item_dragged != item_selected) {
+            item_selected.correct_pos();
+            item_dragged.correct_pos();
+            int x1 = item_dragged.x, y1 = item_dragged.y;
+            item_dragged.moveTo(item_selected.x,item_selected.y);
+            item_selected.moveTo(x1,y1);
+            map.swap(item_dragged,item_selected);
+            item_selected = null;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int x, int y) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(int i) {
+        return false;
     }
 
     // Элементы игры
     public class ThreeItem {
 
         private static final int EMPTY = 0, UP = 1, DOWN = 2, LEFT = 3, RIGHT = 4;
-        private static final float ANIMATION_DEFAULT_TIME = 1f;
+        private static final float ANIMATION_DEFAULT_TIME = 0.5f;
 
         private float deltaAction, finishAction;
-        private boolean moving, movingEnd;
-        private int _type_;
-        public int x, y;
+        private boolean moving, movingEnd, hide;
+        private int _type_, x, y;
 
         private final Rectangle rect_current;
         private final Rectangle rect_move;
@@ -178,11 +241,14 @@ public class MTMap {
             this.rect_current = new Rectangle();
             this.rect_move = new Rectangle();
             this.rect_bg = new Rectangle();
+            this.movingEnd = true;
+            this.moving = false;
+            this.hide = true;
             this.finishAction = 0;
             this.deltaAction = 0;
             this.x = x;
             this.y = y;
-            correct_pos(x, y);
+            correct_pos();
             switch (_type_) {
                 case "empty":
                     this._type_ = EMPTY;
@@ -200,29 +266,92 @@ public class MTMap {
                     this._type_ = RIGHT;
                     break;
                 case "randitem":
-                    this._type_ = 5 + MathUtils.random(items.size() - 1);
+                    this._type_ = 5;
+                    setRandomItem();
                     break;
                 case "randbonus":
                     this._type_ = 5 + items.size() + MathUtils.random(items.size() - 1);
                     break;
             }
+        }
+
+        // Установить рандомный элемент
+        public void setRandomItem() {
             if (this._type_ > 4) {
+                this._type_ = 5 + MathUtils.random(items.size() - 1);
                 this.picture = new Sprite();
                 this.picture.setRegion(atlas.findRegion(items.get(this._type_ - 5)));
             }
         }
 
-        @Override
-        public String toString() {
-            return "ThreeItem{" +
-                    "type=" + _type_ +
-                    ", moving=" + moving +
-                    ", x=" + x +
-                    ", y=" + y +
-                    '}';
+        // Свойства
+        public boolean isMoving() {
+            return moving;
+        }   // Элемент двигается
+        public boolean isHidden() {
+            return hide;
+        }     // Элемент скрыт
+        public boolean isMovingEnd() {
+            if (movingEnd) {
+                movingEnd = false;
+                return true;
+            }
+            return false;
+        }             // Элемент закончил двигаться
+        public int type() {
+            return _type_;
+        }                        // Тип элемента
+        public Rectangle getRect() {
+            return rect_current;
+        }               // Текущие границы элемента
+
+        // Передвинуть элемент
+        public void move(float x, float y, float w, float h, float milliseconds) {
+            deltaAction = 0;
+            finishAction = milliseconds;
+            moving = finishAction > 0;
+            rect_move.set(x, y, w, h);
+        }
+        public void move(Rectangle position, float milliseconds) {
+            move(position.x, position.y, position.width, position.height, milliseconds);
+        }
+        public void move(float x, float y, float w, float h) {
+            move(x, y, w, h, ANIMATION_DEFAULT_TIME);
+        }
+        public void move(Rectangle position) {
+            move(position, ANIMATION_DEFAULT_TIME);
+        }
+        public void moveTo(int x, int y){
+            if (this.x != x)
+                right(x-this.x);
+            else if (this.y != y)
+                down(y-this.y);
         }
 
-        public void correct_pos(int x, int y) {
+        // Передвинуть элемент на клетку вниз
+        public void down(int n) {
+            move(rect_bg.x,
+                    rect_bg.y + n * (ITEM_SIZE + OFFSET * 2),
+                    rect_bg.width,
+                    rect_bg.height);
+            y += n;
+        }
+        public void top(int n) {
+            down(-n);
+        }
+        public void right(int n) {
+            move(rect_bg.x + n * (ITEM_SIZE + OFFSET * 2),
+                    rect_bg.y,
+                    rect_bg.width,
+                    rect_bg.height);
+            x += n;
+        }
+        public void left(int n) {
+            right(-n);
+        }
+
+        // Корректировка позиции по х и у
+        public void correct_pos() {
             this.rect_current.set(
                     START_X + x * (ITEM_SIZE + OFFSET * 2),
                     START_Y + y * (ITEM_SIZE + OFFSET * 2),
@@ -230,84 +359,42 @@ public class MTMap {
                     ITEM_SIZE + OFFSET * 2);
             this.rect_bg.set(rect_current);
             this.rect_move.set(rect_current);
-            this.x = x;
-            this.y = y;
             if (picture != null) {
                 this.picture.setBounds(
                         rect_current.x + OFFSET,
-                        rect_current.y + OFFSET,
+                        MainGDX.HEIGHT - rect_current.height - (rect_current.y + OFFSET),
                         rect_current.width - OFFSET * 2,
                         rect_current.height - OFFSET * 2);
             }
         }
 
-        public int type() {
-            return _type_;
+        // Скрыть элемент
+        public void hide() {
+            move(rect_bg.x + ITEM_SIZE / 2f + OFFSET,
+                    rect_bg.y + ITEM_SIZE / 2f + OFFSET,
+                    0,
+                    0);
+            hide = true;
         }
-
-        public boolean isMoving() {
-            return moving;
-        }
-
-        public Rectangle getRect() {
-            return rect_current;
-        }
-
-        public void move(float x, float y, float w, float h, float milliseconds) {
-            if (moving) return;
-            deltaAction = 0;
-            finishAction = milliseconds;
-            moving = finishAction > 0;
-            rect_move.x = x;
-            rect_move.y = y;
-            rect_move.width = w;
-            rect_move.height = h;
-        }
-
-        public void move(float x, float y, float w, float h) {
-            move(x, y, w, h, ANIMATION_DEFAULT_TIME);
-        }
-
-        public void move(Rectangle position, float milliseconds) {
-            move(position.x, position.y, position.width, position.height, milliseconds);
-        }
-
-        public void move(Rectangle position) {
-            move(position, ANIMATION_DEFAULT_TIME);
-        }
-
-        public void down(int n) {
-            move(rect_bg.x,
-                    rect_bg.y - n * (ITEM_SIZE + OFFSET * 2),
-                    rect_bg.width,
-                    rect_bg.height);
-            y += n;
-        }
-
-        public void down() {
-            down(1);
-        }
-
-        public void reset() {
-            this.rect_current.y = START_Y;
-            this.rect_bg.set(rect_current);
-            this.rect_move.set(rect_current);
-            this.deltaAction = this.finishAction = 0;
-            this.moving = false;
-            this._type_ = 0;
-            this.picture = null;
-        }
-
-        public boolean isMovingEnd() {
-            if (movingEnd) {
-                movingEnd = false;
-                return true;
+        // Показать элемент
+        public void show() {
+            correct_pos();
+            if (isHidden()) {
+                hide = false;
+                setRandomItem();
+                move(rect_bg);
+                rect_bg.set(rect_bg.x + ITEM_SIZE / 2f + OFFSET,
+                        rect_bg.y + ITEM_SIZE / 2f + OFFSET,
+                        0,
+                        0);
+                rect_current.set(rect_bg);
             }
-            return false;
         }
 
+        // Отрисовка
         public void draw(MainGDX game, float delta) {
-            if (picture == null) return;
+            if (picture == null)
+                return;
             if (moving) {
                 deltaAction += delta;
                 if (deltaAction >= finishAction) {
@@ -321,12 +408,23 @@ public class MTMap {
                     rect_current.height = game.interpolation.apply(rect_bg.height, rect_move.height, deltaAction / finishAction);
                     picture.setBounds(
                             rect_current.x + OFFSET,
-                            rect_current.y + OFFSET,
+                            MainGDX.HEIGHT - rect_current.height - (rect_current.y + OFFSET),
                             rect_current.width - OFFSET * 2,
                             rect_current.height - OFFSET * 2);
                 }
             }
             picture.draw(game.getBatch());
+        }
+
+        // Вывод
+        @Override
+        public String toString() {
+            return "ThreeItem{" +
+                    "type=" + _type_ +
+                    ", moving=" + moving +
+                    ", x=" + x +
+                    ", y=" + y +
+                    '}';
         }
     }
 
@@ -347,10 +445,25 @@ public class MTMap {
             items.get(i).set(j, item);
         }
 
+        public void swap(int i1, int j1, int i2, int j2, boolean show) {
+            ThreeItem item1 = get(i1, j1);
+            ThreeItem item2 = get(i2, j2);
+            item1.x = j2;
+            item1.y = i2;
+            item2.x = j1;
+            item2.y = i1;
+            if (show) {
+                item1.show();
+                item2.show();
+            }
+            set(i1, j1, item2);
+            set(i2, j2, item1);
+        }
         public void swap(int i1, int j1, int i2, int j2) {
-            ThreeItem item = get(i1, j1);
-            set(i1, j1, get(i2, j2));
-            set(i2, j2, item);
+            swap(i1,j1,i2,j2,true);
+        }
+        public void swap(ThreeItem item1, ThreeItem item2) {
+            swap(item1.y,item1.x,item2.y,item2.x,false);
         }
 
         public void add(int i, ThreeItem item) {
@@ -370,8 +483,8 @@ public class MTMap {
         public void correct_position() {
             for (int i = 0; i < rows(); i++) {
                 for (int j = 0; j < columns(); j++) {
-                    ThreeItem item = get(i,j);
-                    item.correct_pos(item.x,item.y);
+                    ThreeItem item = get(i, j);
+                    item.correct_pos();
                 }
             }
         }
