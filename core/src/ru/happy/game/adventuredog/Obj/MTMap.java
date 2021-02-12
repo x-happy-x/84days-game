@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.happy.game.adventuredog.MainGDX;
+import ru.happy.game.adventuredog.Tools.GraphicTool;
 
 public class MTMap implements InputProcessor {
 
@@ -184,8 +185,8 @@ public class MTMap implements InputProcessor {
 
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
-        //MainGDX.write("TOUCH: "+i+" "+i1+" "+i2+" "+i3);
-        item_selected = contain(x,y);
+        MainGDX.write("TOUCH: "+x+" "+y+" "+pointer+" "+button);
+        item_selected = contain(GraphicTool.toLocal(x,y));
         return false;
     }
 
@@ -197,14 +198,16 @@ public class MTMap implements InputProcessor {
 
     @Override
     public boolean touchDragged(int x, int y, int pointer) {
-        //MainGDX.write("DRAG: "+i+" "+i1+" "+i2);
-        item_dragged = contain(x,y);
+        MainGDX.write("TOUCH: "+x+" "+y+" "+pointer);
+        item_dragged = contain(GraphicTool.toLocal(x,y));
         if (item_selected != null && item_dragged != null && item_dragged != item_selected) {
+            int x1 = Math.max(-1,Math.min(1,item_selected.x-item_dragged.x)),
+                    y1 = Math.max(-1,Math.min(1,item_selected.y - item_dragged.y));
+            item_dragged = map.get(item_selected.x-x1,item_selected.y-y1);
             item_selected.correct_pos();
             item_dragged.correct_pos();
-            int x1 = item_dragged.x, y1 = item_dragged.y;
             item_dragged.moveTo(item_selected.x,item_selected.y);
-            item_selected.moveTo(x1,y1);
+            item_selected.moveTo(item_selected.x-x1,item_selected.y-y1);
             map.swap(item_dragged,item_selected);
             item_selected = null;
         }
@@ -241,7 +244,7 @@ public class MTMap implements InputProcessor {
             this.rect_current = new Rectangle();
             this.rect_move = new Rectangle();
             this.rect_bg = new Rectangle();
-            this.movingEnd = true;
+            this.movingEnd = false;
             this.moving = false;
             this.hide = true;
             this.finishAction = 0;

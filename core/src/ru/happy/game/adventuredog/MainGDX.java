@@ -42,7 +42,7 @@ import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
 public class MainGDX extends Game {
 
     // Параметры экрана
-    public static final int APP_VERSION = 20;
+    public static final int APP_VERSION = 22;
     public static int WIDTH = 1000,
             HEIGHT = 500,
             DISPLAY_CUTOUT_MODE,
