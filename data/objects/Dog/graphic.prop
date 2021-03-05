@@ -1,0 +1,9 @@
+Walk
+min: 1
+max: 31
+width: 270
+height: 200
+moveX: 152
+moveY: 0
+speed: 45
+repeatType: start

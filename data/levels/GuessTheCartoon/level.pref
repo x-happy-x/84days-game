@@ -1,0 +1,15 @@
+loadFiles: 3
+load0Name: load
+load0Path: load.pref
+load0Type: TA
+load1Name: bg
+load1Path: bg.png
+load1Type: T
+load2Name: graphic
+load2Path: graphic.pref
+load2Type: TA
+hintCount: 4
+hint1: Как только вы отгадаете всех видимых персонажей, нужно будет найти и отгадать спрятанных
+hint2: Правильно написав все имена вы получите подсказку
+hint3: Загрузка...
+hint4: Чёт больше не придумал...

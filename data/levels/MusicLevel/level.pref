@@ -1,0 +1,10 @@
+loadFiles: 2
+load0Name: load
+load0Path: load.pref
+load0Type: TA
+load1Name: sound_cut
+load1Path: cut.mp3
+load1Type: M
+hintCount: 2
+hint0: Загрузка...
+hint1: Туц туц туц туц туц 

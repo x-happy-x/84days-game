@@ -2,12 +2,8 @@ package ru.happy.game.adventuredog.desktop;
 
 import com.badlogic.gdx.Files;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL30;
 
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Java2DFrameConverter;
@@ -55,6 +51,7 @@ public class DesktopLauncher {
         config.setBackBufferConfig(8,8,8,8,16,0,2);
         //config.useOpenGL3(true, GL30.GL_MAJOR_VERSION,GL30.GL_MINOR_VERSION);
         new Lwjgl3Application(new MainGDX(), config);
+        MainGDX.write(System.getProperty("user.dir"));
         //load("video/5 (1).mp4");
     }
 

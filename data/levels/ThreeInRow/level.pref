@@ -1,0 +1,11 @@
+loadFiles: 2
+load0Name: graphic
+load0Path: graphic.pref
+load0Type: TA
+load1Name: bg
+load1Path: maps/map_001.jpg
+load1Type: T
+hintCount: 2
+hint0: Ллалалала
+hint1: Загрузка...
+hint2: Туц туц туц туц туц 

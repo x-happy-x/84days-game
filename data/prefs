@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+<entry key="name">Оффлайн режим</entry>
+<entry key="helps">99999</entry>
+<entry key="live">72</entry>
+<entry key="tickets">99999</entry>
+<entry key="opened_level">0</entry>
+<entry key="perm">0</entry>
+<entry key="finished_level">0</entry>
+<entry key="help">9</entry>
+<entry key="mail">offline-test@mail.ru</entry>
+<entry key="uid">0</entry>
+<entry key="ticket">62</entry>
+<entry key="lives">999</entry>
+<entry key="sync">false</entry>
+<entry key="selected_dog">0</entry>
+<entry key="pass">1234</entry>
+</properties>

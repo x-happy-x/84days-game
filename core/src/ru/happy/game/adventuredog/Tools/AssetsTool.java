@@ -117,7 +117,7 @@ public class AssetsTool {
             case Android:
                 return Gdx.files.getLocalStoragePath();
             case Desktop:
-                return Gdx.files.getExternalStoragePath() + "Desktop/GameData";
+                return "../../data";
         }
         return null;
     }

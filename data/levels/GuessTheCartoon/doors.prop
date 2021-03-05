@@ -1,0 +1,59 @@
+pic: door1
+id: 1
+name: door
+mult: locked
+layer: 2
+x: 479
+y: 298
+w: 497
+h: 337
+
+pic: door1u
+id: 1
+name: door
+mult: unlocked
+layer: 2
+x: 350
+y: 260
+w: 770
+h: 428
+
+pic: door2
+id: 2
+name: door
+mult: locked
+layer: 3
+x: 2245
+y: 382
+w: 400
+h: 370
+
+pic: door2u
+id: 2
+name: door
+mult: unlocked
+layer: 3
+x: 2050
+y: 337
+w: 656
+h: 425
+
+pic: door3u
+id: 3
+name: door
+mult: unlocked
+layer: 4
+x: 3445
+y: 190
+w: 294
+h: 585
+
+pic: door3
+id: 3
+name: door
+mult: locked
+layer: 4
+x: 3058
+y: 253
+w: 395
+h: 505

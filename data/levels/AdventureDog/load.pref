@@ -1,0 +1,26 @@
+load-0.png
+size: 1028, 1028
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+pesik
+ rotate: false
+ xy: 0, 310
+ size: 482, 310
+ orig: 482, 310
+ offset: 0,0
+ index: -1
+leash
+ rotate: false
+ xy: 470, 310
+ size: 2, 310
+ orig: 2, 310
+ offset: 0,0
+ index: -1
+text
+ rotate: false
+ xy: 0, 0
+ size: 677, 310
+ orig: 677, 310
+ offset: 0,0
+ index: -1

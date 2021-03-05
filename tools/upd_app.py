@@ -1,11 +1,6 @@
 from ftplib import FTP
+from server import *
 import os, re
-
-# Параметры хоста
-HOST = "happy-x.ru"
-USER = "j955969_happy"
-PASS = "PassForBD05"
-PORT = 21
 
 # Локальные параметры
 version = "1"
@@ -15,6 +10,8 @@ message = "None"
 app = "D:/Projects/Game/android/build/outputs/apk/debug/android-debug.apk"
 game = "D:/Projects/Game/tools"
 info_file = os.path.join(game,"version.txt")
+
+# Обновление локальных данных
 if os.path.exists(info_file):
     t = ""
     with open(info_file,"r") as f:
@@ -28,6 +25,7 @@ if os.path.exists(info_file):
         upd_data = upd_data[0],upd_data[1],upd_data[2],"\n".join(upd_data[3:])
     if len(upd_data) == 4:
         app_version, version, state, message = upd_data
+
 maingdx_file = 'D:/Projects/Game/core/src/ru/happy/game/adventuredog/MainGDX.java'
 text = ""
 with open(maingdx_file,"r",encoding="utf-8") as f:
@@ -54,5 +52,3 @@ app_version+=1
 text = re.sub(r"APP_VERSION = \d*;", "APP_VERSION = "+str(app_version)+";", text, 0, re.MULTILINE)
 with open(maingdx_file,"w",encoding="utf-8") as f:
 	f.write(text)
-
-input("Нажмите ENTER чтобы завершить")

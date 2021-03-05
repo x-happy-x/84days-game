@@ -1,19 +1,14 @@
 from zipfile import ZipFile
 from ftplib import FTP
+from server import *
 import os
-
-# Параметры хоста
-HOST = "happy-x.ru"
-USER = "j955969_happy"
-PASS = "PassForBD05"
-PORT = 21
 
 # Локальные параметры
 version = "1"
 app_version = "1"
 state = "1"
 message = "None"
-directory = "C:/Users/Abdulla/Desktop/GameData"
+directory = "D:/Projects/Game/data"
 game = "D:/Projects/Game/tools"
 black_list_dir = ["notLoaded","cache","updates"]
 black_list_file = ["prefs","version.txt","lastmoded.txt"]

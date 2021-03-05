@@ -1,0 +1,61 @@
+load-0.png
+size: 2048, 2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+bear
+ rotate: false
+ xy: 588, 0
+ size: 274, 256
+ orig: 274, 256
+ offset: 0,0
+ index: -1
+bird
+ rotate: false
+ xy: 1669, 0
+ size: 237, 256
+ orig: 237, 256
+ offset: 0,0
+ index: -1
+fox
+ rotate: false
+ xy: 867, 0
+ size: 268, 256
+ orig: 268, 256
+ offset: 0,0
+ index: -1
+items_panel
+ rotate: false
+ xy: 0, 0
+ size: 291, 256
+ orig: 291, 256
+ offset: 0,0
+ index: -1
+items_panel_arrow
+ rotate: false
+ xy: 1911, 0
+ size: 54, 58
+ orig: 54, 58
+ offset: 0,0
+ index: -1
+item_bg
+ rotate: false
+ xy: 1410, 0
+ size: 254, 256
+ orig: 254, 256
+ offset: 0,0
+ index: -1
+mouse
+ rotate: false
+ xy: 296, 0
+ size: 287, 256
+ orig: 287, 256
+ offset: 0,0
+ index: -1
+panda
+ rotate: false
+ xy: 1140, 0
+ size: 265, 256
+ orig: 265, 256
+ offset: 0,0
+ index: -1

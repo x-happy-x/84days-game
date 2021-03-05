@@ -42,7 +42,7 @@ import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
 public class MainGDX extends Game {
 
     // Параметры экрана
-    public static final int APP_VERSION = 22;
+    public static final int APP_VERSION = 24;
     public static int WIDTH = 1000,
             HEIGHT = 500,
             DISPLAY_CUTOUT_MODE,
@@ -50,6 +50,7 @@ public class MainGDX extends Game {
             VERSION;
     public static String APP_LOG_TAG = "UNNAMED_GAME";
     private final String[] states = new String[]{"Проверка обновлений", "Загрузка файлов", "Проверка файлов", "Авторизация", "Запуск игры"};
+    public static boolean OFFLINE = true;
 
     // Цвет при очистке экрана
     public Color clearBg;
@@ -355,13 +356,48 @@ public class MainGDX extends Game {
             openURL = null;
             upd = auth = error = false;
             progressNow = stateType = 0;
-
             // Проверка обновлений
             state = states[stateType];
             if (AssetsTool.getFileHandler("menu/game.pref").exists()) {
                 property = AssetsTool.getParamFromFile(AssetsTool.readFile("menu/game.pref"));
                 VERSION = Integer.parseInt(property.get("version"));
             }
+
+            // Оффлайн режим
+            if (OFFLINE) {
+                property = AssetsTool.getParamFromFile(AssetsTool.readFile("menu/game.pref"));
+                property.put("version", "" + VERSION);
+                auth = true;
+                AssetsTool.setParamToFile("menu/game.pref", property);
+                manager.setProperty("levels", property.get("levels"));
+                Map<String, String> temp;
+                for (int i = 0; i <= manager.getInt("levels"); i++) {
+                    manager.setProperty(i, "path", property.get("level" + i + "Path"));
+                    temp = AssetsTool.getParamFromFile(AssetsTool.readFile(manager.getString(i, "path") + "/level.pref"));
+                    manager.setProperty(i, "hints", temp.get("hintCount"));
+                    //
+                    for (int j = 0; j < manager.getInt(i, "hints"); j++)
+                        manager.setProperty(i, "hint" + j, temp.get("hint" + j));
+                    //
+                    for (int j = 0; j < Integer.parseInt(temp.get("loadFiles")); j++)
+                        manager.add(i, temp.get("load" + j + "Name"), manager.getString(i, "path") + "/" + temp.get("load" + j + "Path"), temp.get("load" + j + "Type"));
+                }
+                assets.setManager(manager);
+                user.setName("Оффлайн режим");
+                user.setLives(999);
+                user.setId(99999999);
+                user.setTickets(99999);
+                user.setHelps(99999);
+                user.setAge(20);
+                user.setSuccess(1);
+                user.setMail("offline-test@mail.ru");
+                user.setPass("1234");
+                user.setInWorld(world.prefs);
+                world.setUser(user);
+                stateType = 4;
+                return;
+            }
+
             if (task.SYNC_GET("updates/status.php?version=" + VERSION + "&app=" + APP_VERSION + "&user=" + world.prefs.getInteger("uid", -1))) {
                 info = AssetsTool.getParamFromFile(task.result);
                 if (info.containsKey("LAST_VERSION")) {

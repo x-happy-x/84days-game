@@ -1,6 +1,8 @@
 package ru.happy.game.adventuredog.Screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 
@@ -24,6 +26,7 @@ public class ThreeInRow implements Screen {
 
     // Графические ресурсы
     private final TextureAtlas atlas;
+    private final Sprite bg;
 
     private MTMap map;
     Vector2 cursor;
@@ -36,18 +39,23 @@ public class ThreeInRow implements Screen {
         assets = game.assets;
         managerV = game.values;
         managerX = game.manager;
-
+        bg = new Sprite();
+        bg.setBounds(0, 0, MainGDX.WIDTH, MainGDX.HEIGHT);
+        bg.setTexture(game.assets.get("bg"));
+        float w = bg.getTexture().getWidth(), h = bg.getTexture().getHeight();
+        if ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() > w / h) {
+            bg.setRegion(0, 0, (int) w, (int) ((float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth() * w));
+            bg.setRegion(0, (int) ((h - bg.getRegionHeight()) / 2f), bg.getRegionWidth(), bg.getRegionHeight());
+        } else {
+            bg.setRegion(0, 0, (int) ((float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight() * h), (int) h);
+            bg.setRegion((int) ((w - bg.getRegionWidth()) / 2f), 0, bg.getRegionWidth(), bg.getRegionHeight());
+        }
         atlas = assets.get("graphic");
         map = new MTMap(assets.getLevelContent("maps/map_001.bin"),atlas);
         cursor = new Vector2();
         world.resetMultiplexer();
         world.addProcessor(map);
         world.updateMultiplexer();
-        //for (int i = 0; i < map.rows(); i++) {
-        //    for (int j = 0; j < map.columns(); j++) {
-        //        map.check(i,j);
-        //    }
-        //}
     }
 
     @Override
@@ -58,6 +66,7 @@ public class ThreeInRow implements Screen {
     @Override
     public void render(float delta) {
         game.draw();
+        bg.draw(world.getBatch());
         map.draw(game,delta);
         game.end();
     }

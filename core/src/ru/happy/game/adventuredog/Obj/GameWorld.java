@@ -19,8 +19,6 @@ import com.badlogic.gdx.utils.SerializationException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import java.util.Arrays;
-
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
 import ru.happy.game.adventuredog.Tools.GamePrefs;
@@ -136,12 +134,16 @@ public class GameWorld extends Stage {
     }
 
     public void startSync() {
-        synced = false;
-        syncError = false;
-        prefs.putBoolean("sync", false);
-        prefs.flush();
-        out = "Соединение с сервером...";
-        SyncData();
+        if (MainGDX.OFFLINE) {
+            synced = true;
+        } else {
+            synced = false;
+            syncError = false;
+            prefs.putBoolean("sync", false);
+            prefs.flush();
+            out = "Соединение с сервером...";
+            SyncData();
+        }
     }
 
     public boolean isSynced() {
