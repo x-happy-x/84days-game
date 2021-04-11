@@ -42,7 +42,8 @@ import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
 public class MainGDX extends Game {
 
     // Параметры экрана
-    public static final int APP_VERSION = 24;
+    public static final int APP_VERSION = 27;
+    private static final int START_LEVEL = 3;
     public static int WIDTH = 1000,
             HEIGHT = 500,
             DISPLAY_CUTOUT_MODE,
@@ -50,7 +51,7 @@ public class MainGDX extends Game {
             VERSION;
     public static String APP_LOG_TAG = "UNNAMED_GAME";
     private final String[] states = new String[]{"Проверка обновлений", "Загрузка файлов", "Проверка файлов", "Авторизация", "Запуск игры"};
-    public static boolean OFFLINE = true;
+    public static boolean OFFLINE = false;
 
     // Цвет при очистке экрана
     public Color clearBg;
@@ -69,17 +70,18 @@ public class MainGDX extends Game {
     public Map<String, String> property; // Параметры уровней
     public VideoPlayer video;
     public ValuesManager values;
+
+    private NetTask task;
     Thread extraction; // Поток загрузки
+    private boolean loaded, auth, error; // Статус загрузки игры
     Texture bgTexture;
     Color statColor = Color.valueOf("#ffffff"), statStroke = Color.valueOf("#000000");
     float[] olds;
-    private NetTask task;
-    private Sprite bg; // Фон загрузки игры
-    private boolean loaded, auth, error; // Статус загрузки игры
-    private int stateType; // Стадия загрузки
-    private String state, openURL; // Название текущей стадии
-    private float sync_delta; // Отсчёт времени синхронизации
-    private float progressNow; // Прогресс загрузки
+    private Sprite bg;                   // Фон загрузки игры
+    private int stateType;               // Стадия загрузки
+    private String state, openURL;       // Название текущей стадии
+    private float sync_delta;            // Отсчёт времени синхронизации
+    private float progressNow;           // Прогресс загрузки
 
     public MainGDX(ApplicationBundle bundle) {
         this();
@@ -251,7 +253,7 @@ public class MainGDX extends Game {
                 values = new ValuesManager();
                 loaded = true;
                 bgTexture.dispose();
-                if (auth) LoadScreen.setLevel(this, 4);
+                if (auth) LoadScreen.setLevel(this, START_LEVEL);
                 else setScreen(new Auth(this));
             }
         }
@@ -439,10 +441,9 @@ public class MainGDX extends Game {
             if (upd) {
                 waitState(1);
                 state = states[stateType];
-                String upd_path = NetTask.site + "updates/full_pack.zip", load_path = "data.tmp";
+                String upd_path = NetTask.SITE + "updates/full_pack.zip", load_path = "data.tmp";
                 if (info.containsKey("UPDATE_PACK")) {
                     upd_path = info.get("UPDATE_PACK");
-                    upd_path = upd_path.replace("{SITE}", NetTask.site);
                 }
                 if (info.containsKey("UPDATE_NAME")) {
                     load_path = info.get("UPDATE_NAME");
@@ -492,7 +493,7 @@ public class MainGDX extends Game {
             waitState(3);
             if (world.prefs.contains("name")) {
                 state = states[stateType];
-                if (task.SYNC_GET("", "mode", "1", "mail", world.prefs.getString("mail").equals("@") ? world.prefs.getString("mail") : world.prefs.getString("name"), "pass", world.prefs.getString("pass"))) {
+                if (task.SYNC_GET(null, "mode", "" + NetTask.SIGN_IN, "mail", world.prefs.getString("mail").equals("@") ? world.prefs.getString("mail") : world.prefs.getString("name"), "pass", world.prefs.getString("pass"))) {
                     try {
                         user.set(new Json(JsonWriter.OutputType.json).fromJson(User.class, task.result));
                         user.setMessage(encodePlatform(user.getMessage(), false));
@@ -512,6 +513,7 @@ public class MainGDX extends Game {
                 manager.setProperty(i, "path", property.get("level" + i + "Path"));
                 temp = AssetsTool.getParamFromFile(AssetsTool.readFile(manager.getString(i, "path") + "/level.pref"));
                 manager.setProperty(i, "hints", temp.get("hintCount"));
+                manager.setProperty(i, "classLoad", temp.get("classLoad"));
                 //
                 for (int j = 0; j < manager.getInt(i, "hints"); j++)
                     manager.setProperty(i, "hint" + j, temp.get("hint" + j));

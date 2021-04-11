@@ -1,3 +1,4 @@
+classLoad: MainScreen
 loadFiles: 2
 load0Name: load
 load0Path: load.pref

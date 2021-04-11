@@ -1,4 +1,5 @@
 loadFiles: 3
+classLoad: Guessing
 load0Name: load
 load0Path: load.pref
 load0Type: TA

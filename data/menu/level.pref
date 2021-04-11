@@ -5,3 +5,4 @@ load0Type: TA
 load1Name: menu_bg
 load1Path: menu_bg.png
 load1Type: T
+classLoad: MainMenu

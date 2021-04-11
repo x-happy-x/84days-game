@@ -1,4 +1,5 @@
 loadFiles: 2
+classLoad: MusicLevel
 load0Name: load
 load0Path: load.pref
 load0Type: TA

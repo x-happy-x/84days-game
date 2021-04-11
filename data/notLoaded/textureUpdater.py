@@ -62,5 +62,5 @@ def bgUpdate():
     for i in a:
         img.append(Image("cache/"+i))
     createTexture("textures",size=2048,img=img,atlasName="load",padding=5);
-bgUpdate()
+menuUpdate()
 #getImagesFromTexture("")

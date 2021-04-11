@@ -28,9 +28,9 @@ import ru.happy.game.adventuredog.UI.Button;
 import ru.happy.game.adventuredog.UI.Slider;
 import ru.happy.game.adventuredog.UI.TextEditor;
 
+import static ru.happy.game.adventuredog.Screens.LoadScreen.setLevel;
 import static ru.happy.game.adventuredog.Tools.AssetsTool.isAndroid;
 import static ru.happy.game.adventuredog.Tools.GraphicTool.toLocal;
-import static ru.happy.game.adventuredog.Screens.LoadScreen.setLevel;
 
 public class Auth implements Screen {
 
@@ -115,7 +115,7 @@ public class Auth implements Screen {
             @Override
             public void isClick() {
                 if (state == 0) {
-                    LogIn((game.world.prefs.getString("mail").equals("@") ? game.world.prefs.getString("mail") : game.world.prefs.getString("name")), game.world.prefs.getString("pass", "None"));
+                    SignIn((game.world.prefs.getString("mail").equals("@") ? game.world.prefs.getString("mail") : game.world.prefs.getString("name")), game.world.prefs.getString("pass", "None"));
                 } else if (state == 2) {
                     if (!ok.isActive()) {
                         error = "Заполните все данные";
@@ -136,7 +136,7 @@ public class Auth implements Screen {
                         tmpUser.setName(name.getText());
                         tmpUser.setPass(pass.getText());
                         tmpUser.setMail(email.getText());
-                        SignIn(tmpUser);
+                        SignUp(tmpUser);
                         changeState(state + 1);
                     }
                 } else if (state == 4) {
@@ -144,7 +144,7 @@ public class Auth implements Screen {
                         setCode(tmpUser.getId(), Integer.parseInt(pass.getText()));
                     }
                 } else if (state == 5) {
-                    if (ok.isActive()) LogIn(email.getText(), pass.getText());
+                    if (ok.isActive()) SignIn(email.getText(), pass.getText());
                 }
             }
 
@@ -156,7 +156,7 @@ public class Auth implements Screen {
         resend = new Button("ОТПРАВИТЬ СНОВА", atlas.findRegion("blue_btn"), game.world, Color.WHITE, new Button.Action() {
             @Override
             public void isClick() {
-                SignIn(tmpUser);
+                SignUp(tmpUser);
             }
 
             @Override
@@ -562,19 +562,19 @@ public class Auth implements Screen {
         }
     }
 
-    public void SignIn(String mail, String pass, String name, int age, int sex) {
+    public void SignUp(String mail, String pass, String name, int age, int sex) {
         bQuery = false;
         tQuery = QueryType.SignIn;
         if (mail.length() > 0)
-            task.GET("", "mode", "0", "mail", mail, "pass", pass, "name", name, "age", age + "", "sex", sex + "", "v", "" + MainGDX.VERSION);
+            task.API(NetTask.SIGN_UP, "mail", mail, "pass", pass, "name", name, "age", age + "", "sex", sex + "", "v", "" + MainGDX.VERSION);
         else
-            task.GET("", "mode", "0", "pass", pass, "name", name, "age", age + "", "sex", sex + "", "v", "" + MainGDX.VERSION);
+            task.API(NetTask.SIGN_UP, "pass", pass, "name", name, "age", age + "", "sex", sex + "", "v", "" + MainGDX.VERSION);
     }
 
     @Override
     public void show() {
         if (state == 0) {
-            LogIn((game.world.prefs.getString("mail").equals("@") ? game.world.prefs.getString("mail") : game.world.prefs.getString("name")), game.world.prefs.getString("pass", "None"));
+            SignIn((game.world.prefs.getString("mail").equals("@") ? game.world.prefs.getString("mail") : game.world.prefs.getString("name")), game.world.prefs.getString("pass", "None"));
             ok.setActive(true);
             ok.setText("ПОПРОБОВАТЬ ЕЩЁ", game);
             ok.setSize(sexMan.getWidth() * 1.2f, sexMan.getHeight());
@@ -582,32 +582,32 @@ public class Auth implements Screen {
         }
     }
 
-    public void LogIn(String mail, String pass) {
+    public void SignIn(String mail, String pass) {
         bQuery = false;
         tQuery = QueryType.LogIn;
-        task.GET("", "mode", "1", "mail", mail, "pass", pass);
+        task.API(NetTask.SIGN_IN, "mail", mail, "pass", pass);
     }
 
-    public void SignIn(User user) {
-        SignIn(user.getMail(), user.getPass(), user.getName(), user.getAge(), user.getSex());
+    public void SignUp(User user) {
+        SignUp(user.getMail(), user.getPass(), user.getName(), user.getAge(), user.getSex());
     }
 
     public void setCode(int id, int code) {
         bQuery = false;
         tQuery = QueryType.codeCheck;
-        task.GET("", "mode", "2", "id", id + "", "code", code + "");
+        task.API(NetTask.MAIL_ACTIVE, "id", id + "", "code", code + "");
     }
 
     public void checkMail(String mail) {
         bQuery = false;
         tQuery = QueryType.mailCheck;
-        task.GET("", "mode", "3", "mail", mail);
+        task.API(NetTask.USERNAME_CHECK, "mail", mail);
     }
 
     public void checkName(String name) {
         bQuery = false;
         tQuery = QueryType.nameCheck;
-        task.GET("", "mode", "3", "name", name);
+        task.API(NetTask.USERNAME_CHECK, "name", name);
     }
 
     public void logIn() {
@@ -644,7 +644,7 @@ public class Auth implements Screen {
         }
         delta += Gdx.graphics.getDeltaTime();
         if (delta > 0.5f) {
-            task1.GET("", "mode", "1", "mail", tmpUser.getMail(), "pass", tmpUser.getPass());
+            task1.API(NetTask.SIGN_IN, "mail", tmpUser.getMail(), "pass", tmpUser.getPass());
             delta = 0f;
         }
     }
@@ -891,7 +891,7 @@ public class Auth implements Screen {
             } else if (tQuery == QueryType.SignIn) {
                 if (tmpUser.getMail().length() == 0) {
                     if (game.user.getSuccess() == 1) {
-                        LogIn(tmpUser.getName(), tmpUser.getPass());
+                        SignIn(tmpUser.getName(), tmpUser.getPass());
                     } else {
                         int i = 0;
                         for (String s : game.user.getMessage().split("_")) {
@@ -914,7 +914,7 @@ public class Auth implements Screen {
                 }
             } else if (tQuery == QueryType.codeCheck) {
                 if (game.user.getSuccess() == 1) {
-                    LogIn(tmpUser.getMail(), tmpUser.getPass());
+                    SignIn(tmpUser.getMail(), tmpUser.getPass());
                 } else {
                     logIn();
                     pass.draw(game, delta);

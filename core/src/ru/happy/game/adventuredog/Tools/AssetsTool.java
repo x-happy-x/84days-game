@@ -49,11 +49,11 @@ public class AssetsTool {
 
     // Сохранения и загрузка хэш-таблицы
     public static void setParamToFile(String path, Map<String, String> map) {
-        String out = "";
+        StringBuilder out = new StringBuilder();
         for (String key : map.keySet()) {
-            out += key + ": " + map.get(key) + "\n";
+            out.append(key).append(": ").append(map.get(key)).append("\n");
         }
-        AssetsTool.getFileHandler(path).writeString(out, false);
+        AssetsTool.getFileHandler(path).writeString(out.toString(), false);
     }
 
     public static Map<String, String> getParamFromFile(String fileText) {
@@ -208,6 +208,7 @@ public class AssetsTool {
 
 
     // Размер файла из байтов в любую другую
+    @SuppressWarnings("DefaultLocale")
     public static String formatSize(long bytes) {
         long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
         if (absB < 1024) {
@@ -265,19 +266,14 @@ public class AssetsTool {
         return readFile("menu/" + file);
     }
 
-
-    // Добавить ресурсы в менеджер
-    public void load() {
-        if (level >= 0) {
-            try {
-                for (String o : managerX.getFiles(level)) {
-                    manager.load(managerX.get(level, o));
-                }
-            } catch (NullPointerException ignored){}
-        } else manager.load(bg);
-        if (level != 0) {
-            manager.load(managerX.getGUI());
+    public static String replace(String str, String charset, String r, boolean clearing) {
+        for (String char_ : charset.split("")) {
+            str = str.replace(char_, r);
         }
+        if (clearing)
+            while (str.contains("  "))
+                str = str.replace("  ", " ");
+        return str;
     }
 
     public void load(String name) {
@@ -340,13 +336,18 @@ public class AssetsTool {
         }
     }
 
-    public static String replace(String str, String charset, String r, boolean clearing){
-        for (String char_: charset.split("")){
-            str = str.replace(char_,r);
+    // Добавить ресурсы в менеджер
+    public void load() {
+        if (level >= 0) {
+            try {
+                for (String o : managerX.getFiles(level)) {
+                    manager.load(managerX.get(level, o));
+                }
+            } catch (NullPointerException ignored) {
+            }
+        } else manager.load(bg);
+        if (level != 0) {
+            manager.load(managerX.getGUI());
         }
-        if (clearing)
-            while (str.contains("  "))
-                str = str.replace("  ", " ");
-        return str;
     }
 }

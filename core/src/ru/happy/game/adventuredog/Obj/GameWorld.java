@@ -121,7 +121,7 @@ public class GameWorld extends Stage {
             }
         });
         if (!synced) {
-            task.GET("", "mode", "4", "mail", prefs.getString("name"), "pass", prefs.getString("pass"), "data", getLives() + "_" + getTicket() + "_" + getHelp() + "_" + prefs.getInteger("finished_level", 0) + "_" + prefs.getInteger("opened_level", 0) + "_" + MainGDX.VERSION);
+            task.API(NetTask.SYNCHRONIZATION, "mail", prefs.getString("name"), "pass", prefs.getString("pass"), "data", getLives() + "_" + getTicket() + "_" + getHelp() + "_" + prefs.getInteger("finished_level", 0) + "_" + prefs.getInteger("opened_level", 0) + "_" + MainGDX.VERSION);
         }
     }
 

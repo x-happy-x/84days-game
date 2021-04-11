@@ -9,6 +9,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -26,21 +28,38 @@ import okio.Source;
 import ru.happy.game.adventuredog.MainGDX;
 
 public class NetTask {
-    // Параметры
-    public static final String site = "http://api.happy-x.ru/DogGame/";
+    // Параметры API
+    public static final String SITE = "http://game.happy-x.ru/";
+    public static final String DEFAULT_API = SITE + "api.php";
+    // Тип запроса к API
+    public static final int SIGN_UP = 0;
+    public static final int SIGN_IN = 1;
+    public static final int MAIL_ACTIVE = 2;
+    public static final int USERNAME_CHECK = 3;
+    public static final int SYNCHRONIZATION = 4;
+    public static final int LEVEL_GUESS_MUSIC = 5;
+    public static final int LEVEL_GUESS_AESTHETIC = 6;
+
+    public int loadingFLSize, loadingFASize;
     public int cur_progress, max_progress;
     public boolean hardRun, killed;
-    public String result;
-    public int loadingFLSize, loadingFASize;
     private NetListener listener;
     private boolean isFile;
+    public String result;
     private Thread task;
 
-    // Конструкторы
+    /**
+     * Управление HTTP-запросами
+     */
     public NetTask() {
         this(null);
     }
 
+    /**
+     * Управление HTTP-запросами
+     *
+     * @param listener Слушатель действий при процессе и удачном/неудачном завершении загрузки
+     */
     public NetTask(NetListener listener) {
         this.listener = listener;
         cur_progress = max_progress = 0;
@@ -48,16 +67,30 @@ public class NetTask {
         result = "";
     }
 
-    // Загрузить файл
+    /**
+     * Загрузка файла
+     *
+     * @param url    Путь к загружаемому файлу
+     * @param path   Путь для сохранения загруженного файла
+     * @param resume Если файл уже существует возобновить загрузку
+     */
     public void loadFile(String url, String path, boolean resume) {
         if (!isAlive()) {
-            task = new Thread(() -> onPostExecute(_GET_(site + url, resume, new File(path))));
+            task = new Thread(() -> onPostExecute(_GET_(SITE + url, resume, new File(path))));
             task.start();
             hardRun = false;
         }
     }
 
-    // Загрузить несколько файлов
+    /**
+     * Загручка нескольких файлов
+     *
+     * @param url         Путь к каталогу скачиваемых файлов
+     * @param path        Путь к каталогу, куда следует сохранить файлы
+     * @param resume      Если файл уже существует возобновить загрузку
+     * @param stopIfError Остановливать загрузку при ошибке
+     * @param files       Файлы которые требуется загрузить и сохранить в указанную папку
+     */
     public void loadFiles(String url, String path, boolean resume, boolean stopIfError, Object... files) {
         if (!isAlive()) {
             task = new Thread(() -> {
@@ -65,11 +98,11 @@ public class NetTask {
                 loadingFASize = 0;
                 for (Object f : files) {
                     if (killed) return;
-                    loadingFASize += getFileSize(site + url + ((File) f).getName());
+                    loadingFASize += getFileSize(SITE + url + ((File) f).getName());
                 }
                 for (Object f : files) {
                     if (killed) return;
-                    success = _GET_(site + url + ((File) f).getName(), resume, new File(((File) f).getParentFile().getAbsolutePath() + "/" + path, ((File) f).getName()));
+                    success = _GET_(SITE + url + ((File) f).getName(), resume, new File(((File) f).getParentFile().getAbsolutePath() + "/" + path, ((File) f).getName()));
                     onPostExecute(success);
                     if (stopIfError && !success) break;
                 }
@@ -80,59 +113,146 @@ public class NetTask {
         }
     }
 
+    /**
+     * Загручка нескольких файлов
+     *
+     * @param url         Путь к каталогу скачиваемых файлов
+     * @param resume      Если файл уже существует возобновить загрузку
+     * @param stopIfError Остановливать загрузку при ошибке
+     * @param files       Файлы которые требуется загрузить и сохранить в основную папку игры
+     */
     public void loadFiles(String url, boolean resume, boolean stopIfError, Object... files) {
         loadFiles(url, null, resume, stopIfError, files);
     }
 
+    /**
+     * Загручка нескольких файлов
+     *
+     * @param url         Путь к каталогу скачиваемых файлов
+     * @param stopIfError Остановливать загрузку при ошибке
+     * @param files       Файлы которые требуется загрузить и сохранить в основную папку игры
+     */
     public void loadFiles(String url, boolean stopIfError, Object... files) {
         loadFiles(url, true, stopIfError, files);
     }
 
+    /**
+     * Загручка нескольких файлов
+     *
+     * @param url   Путь к каталогу скачиваемых файлов
+     * @param path  Путь к каталогу, куда следует сохранить файлы
+     * @param files Файлы которые требуется загрузить и сохранить в указанную папку
+     */
     public void loadFiles(String url, String path, Object... files) {
         loadFiles(url, path, true, false, files);
     }
 
+    /**
+     * Загручка нескольких файлов
+     *
+     * @param url   Путь к каталогу скачиваемых файлов
+     * @param files Файлы которые требуется загрузить и сохранить в основную папку игры
+     */
     public void loadFiles(String url, Object... files) {
         loadFiles(url, false, files);
     }
 
-    // Выгрузить файл
+    /**
+     * Выгрузка файлов
+     *
+     * @param user Имя пользователя
+     * @param pass Пароль
+     * @param file Файлы
+     */
     public void uploadFile(String user, String pass, File... file) {
         if (!isAlive()) {
-            task = new Thread(() -> onPostExecute(_POST_(site + "File/upload.php?user=" + user + "&pass=" + pass, null, file)));
+            task = new Thread(() -> onPostExecute(_POST_(SITE + "File/upload.php?user=" + user + "&pass=" + pass, null, file)));
             task.start();
             hardRun = false;
         }
     }
 
-    // Выполнить GET-запрос (новый поток)
+    /**
+     * Выполнение GET-запроса в новом потоке
+     *
+     * @param url    URL-ссылка запроса
+     * @param params Параметры запроса в виде: ключ1, значение1, ключ2, значение2
+     */
     public void GET(String url, String... params) {
         if (!isAlive()) {
-            task = new Thread(() -> onPostExecute(_GET_(site + url, false, null, params)));
+            task = new Thread(() -> onPostExecute(_GET_(SITE + url, false, null, params)));
             task.start();
             hardRun = false;
         }
     }
 
-    // Выполнить GET-запрос (основной поток)
-    public boolean SYNC_GET(String url, String... params) {
-        return _GET_(site + url, false, null, params);
+    /**
+     * Обращение к API
+     *
+     * @param mode   Тип запроса
+     * @param params Дополнительные араметры
+     */
+    public void API(Integer mode, String... params) {
+        if (!isAlive()) {
+            ArrayList<String> _params_ = new ArrayList<>();
+            _params_.add("mode");
+            _params_.add("" + mode);
+            _params_.addAll(Arrays.asList(params));
+            String[] param = new String[_params_.size()];
+            _params_.toArray(param);
+            task = new Thread(() -> onPostExecute(_GET_(DEFAULT_API, false, null, param)));
+            task.start();
+            hardRun = false;
+        }
     }
 
+    /**
+     * Выполнение GET-запроса в главном потоке
+     *
+     * @param url    URL-ссылка запроса
+     * @param params Параметры запроса в виде: ключ1, значение1, ключ2, значение2
+     * @return Значение удалось ли выполнить запрос
+     */
+    public boolean SYNC_GET(String url, String... params) {
+        return _GET_(url != null ? SITE + url : DEFAULT_API, false, null, params);
+    }
+
+    /**
+     * Выполнение GET-запроса в главном потоке с сохранением результата в файл
+     *
+     * @param url    URL-ссылка запроса
+     * @param resume Если файл существует продолжить запись с места остановки
+     * @param file   Файл куда будет записан результат запроса
+     * @return Значение удалось ли выполнить запрос
+     */
     public boolean SYNC_GET(String url, boolean resume, File file) {
         return _GET_(url, resume, file);
     }
 
-    // Выполнить POST-запрос (новый поток)
+    /**
+     * Выполнение POST-запрос в новом потоке
+     *
+     * @param url    URL-ссылка запроса
+     * @param params Параметры запроса в виде: ключ1, значение1, ключ2, значение2
+     * @param file   Файлы которые будут отправлены на сервер
+     */
     public void POST(String url, String[] params, File... file) {
         if (!isAlive()) {
-            task = new Thread(() -> onPostExecute(_POST_(site + url, params, file)));
+            task = new Thread(() -> onPostExecute(_POST_(SITE + url, params, file)));
             task.start();
             hardRun = false;
         }
     }
 
-    // GET запрос
+    /**
+     * Выполнения GET-запроса
+     *
+     * @param _url_  URL-ссылка запроса
+     * @param resume Если файл существует продолжить запись с места остановки
+     * @param file   Файл куда будет записан результат запроса
+     * @param params Параметры запроса в виде: ключ1, значение1, ключ2, значение2
+     * @return Значение удалось ли выполнить запрос
+     */
     private boolean _GET_(String _url_, boolean resume, File file, String... params) {
         isFile = file != null;
         try {
@@ -196,6 +316,8 @@ public class NetTask {
                 throw new IOException("Fail GET-query: " + response);
             }
         } catch (IOException e) {
+            result = e.getLocalizedMessage();
+        } catch (NullPointerException e) {
             result = e.getLocalizedMessage();
         }
         return false;

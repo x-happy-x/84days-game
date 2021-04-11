@@ -1,4 +1,5 @@
 loadFiles: 2
+classLoad: MatchThree
 load0Name: graphic
 load0Path: graphic.pref
 load0Type: TA

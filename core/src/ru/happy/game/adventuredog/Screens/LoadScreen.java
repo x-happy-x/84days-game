@@ -57,22 +57,29 @@ public class LoadScreen implements Screen {
         game.setScreen(new LoadScreen(game));
     }
 
+
     public void runLevel() {
-        switch (game.assets.getLevel()) {
-            case 0:
+        switch (game.manager.getString(game.assets.getLevel(), "classLoad")) {
+            case "MainMenu":
                 game.setScreen(new MainMenu(game));
                 break;
-            case 1:
+            case "MainScreen":
                 game.setScreen(new MainScreen(game));
                 break;
-            case 2:
+            case "Guessing":
                 game.setScreen(new Guessing(game));
                 break;
-            case 3:
+            case "MusicLevel":
                 game.setScreen(new MusicLevel(game));
                 break;
-            case 4:
+            case "Aesthetics":
+                game.setScreen(new Aesthetics(game));
+                break;
+            case "MatchThree":
                 game.setScreen(new ThreeInRow(game));
+                break;
+            case "Auth":
+                game.setScreen(new Auth(game));
                 break;
         }
     }
@@ -93,7 +100,7 @@ public class LoadScreen implements Screen {
         }
         if (game.assets.getLevel() > 0) {
             //Map<String, String> levelPref = game.assets.getLevelProp();
-            showedHint = game.manager.getString(game.assets.getLevel(), "hint" + MathUtils.random(1, game.manager.getInt(game.assets.getLevel(), "hints")));
+            showedHint = game.manager.getString(game.assets.getLevel(), "hint" + MathUtils.random(0, game.manager.getInt(game.assets.getLevel(), "hints")));
             if (showedHint == null) showedHint = "";
             if (Gdx.app.getType() == Application.ApplicationType.Desktop)
                 showedHint = AssetsTool.encodeString(showedHint, false);
@@ -212,14 +219,12 @@ public class LoadScreen implements Screen {
                 game.draw();
                 if (pbShow >= 0)
                     game.world.setText((int) (game.assets.getProgress() * 100) + "%", 1f, pb.x + pb.width / 2f, pb.y + pb.height / 2f, game.assets.getProgress() < 0.5f ? Color.valueOf(loadTxt[pbShow].get("color")) : Color.WHITE, true, GameWorld.FONTS.SMALL);
-                int i = 0;
                 float y = pb.y + pb.height / 2f - game.world.getSizes()[1] * 3f;
                 for (String s : game.world.isSyncError() ? (game.world.out + "_Нажмите на экран для повторной попытки").split("_") : showedHint.split("_")) {
                     game.world.setText(s, 1f, pb.x + pb.width / 2f, y, Color.valueOf(pbShow >= 0 ? loadTxt[pbShow].get("color") : "000000"), true, GameWorld.FONTS.SMALL);
                     y -= game.world.getSizes()[1] * 1.7f;
                 }
             } else if (game.world.isSyncError()) {
-                int i = 0;
                 float y = MainGDX.HEIGHT / 4f;
                 for (String s : (game.world.out + "_Нажмите на экран для повторной попытки").split("_")) {
                     game.world.setText(s, 1f, MainGDX.WIDTH / 2f, y, Color.WHITE, true, GameWorld.FONTS.SMALL);

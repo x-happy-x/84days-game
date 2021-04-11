@@ -94,7 +94,7 @@ C:/Users/Abdulla/Desktop/GameData\textures\load.pref 1613223538.7961695
 D:/Projects/Game/data\fonts\Comfortaa-Bold.ttf 1606060012.9615872
 D:/Projects/Game/data\fonts\SimsBold.ttf 1606060012.965583
 D:/Projects/Game/data\fonts\SimsRegular.ttf 1606060012.9675727
-D:/Projects/Game/data\levels\AdventureDog\level.pref 1606060012.9685695
+D:/Projects/Game/data\levels\AdventureDog\level.pref 1617986002.945591
 D:/Projects/Game/data\levels\AdventureDog\load-0.png 1606060012.9695675
 D:/Projects/Game/data\levels\AdventureDog\load.pref 1606060012.9695675
 D:/Projects/Game/data\levels\AdventureDog\load2.pref 1606060012.9705634
@@ -103,7 +103,7 @@ D:/Projects/Game/data\levels\GuessTheCartoon\doors.prop 1606060012.9745543
 D:/Projects/Game/data\levels\GuessTheCartoon\graphic-0.png 1606060013.0044723
 D:/Projects/Game/data\levels\GuessTheCartoon\graphic-1.png 1606060013.0274107
 D:/Projects/Game/data\levels\GuessTheCartoon\graphic.pref 1606060013.0304081
-D:/Projects/Game/data\levels\GuessTheCartoon\level.pref 1606060013.035392
+D:/Projects/Game/data\levels\GuessTheCartoon\level.pref 1617986023.441397
 D:/Projects/Game/data\levels\GuessTheCartoon\load-0.png 1606060013.0433702
 D:/Projects/Game/data\levels\GuessTheCartoon\load.pref 1606060013.0443676
 D:/Projects/Game/data\levels\GuessTheCartoon\load2.pref 1606060013.045363
@@ -111,21 +111,21 @@ D:/Projects/Game/data\levels\GuessTheCartoon\persons.prop 1606060013.045363
 D:/Projects/Game/data\levels\GuessTheCartoon\texts.pref 1606060013.0473585
 D:/Projects/Game/data\levels\MusicLevel\colors.pref 1606060013.049364
 D:/Projects/Game/data\levels\MusicLevel\cut.mp3 1606060013.0503523
-D:/Projects/Game/data\levels\MusicLevel\level.pref 1606060013.0513484
+D:/Projects/Game/data\levels\MusicLevel\level.pref 1617986042.3044178
 D:/Projects/Game/data\levels\MusicLevel\list menu.pref 1606060013.052346
 D:/Projects/Game/data\levels\MusicLevel\load-0.png 1606683452.5908072
 D:/Projects/Game/data\levels\MusicLevel\load.pref 1606683452.5928028
 D:/Projects/Game/data\levels\MusicLevel\load2.pref 1606060013.0553374
 D:/Projects/Game/data\levels\ThreeInRow\graphic-0.png 1613228049.012594
 D:/Projects/Game/data\levels\ThreeInRow\graphic.pref 1613228049.0135932
-D:/Projects/Game/data\levels\ThreeInRow\level.pref 1613223917.516829
+D:/Projects/Game/data\levels\ThreeInRow\level.pref 1617986069.8940465
 D:/Projects/Game/data\levels\ThreeInRow\load.pref 1613223692.7033286
 D:/Projects/Game/data\levels\ThreeInRow\maps\map_001.bin 1613459520.0612674
 D:/Projects/Game/data\levels\ThreeInRow\maps\map_001.jpg 1613221755.2340548
-D:/Projects/Game/data\menu\game.pref 1614077744.7749803
+D:/Projects/Game/data\menu\game.pref 1618127762.359014
 D:/Projects/Game/data\menu\graphic-0.png 1606060013.0603242
 D:/Projects/Game/data\menu\graphic.pref 1606060013.0603242
-D:/Projects/Game/data\menu\level.pref 1606060013.061322
+D:/Projects/Game/data\menu\level.pref 1617985943.8492577
 D:/Projects/Game/data\menu\menu_bg.png 1606060013.0712962
 D:/Projects/Game/data\menu\reg_bg.png 1606060013.0782795
 D:/Projects/Game/data\menu\values.bin 1606060013.0822766
@@ -139,3 +139,10 @@ D:/Projects/Game/data\shaders\font.frag 1606060013.1062016
 D:/Projects/Game/data\shaders\font.vert 1606060013.1062016
 D:/Projects/Game/data\textures\load-0.png 1613223538.7951722
 D:/Projects/Game/data\textures\load.pref 1613223538.7961695
+D:/Projects/Game/data\levels\Aesthetics\colors.pref 1606060013.049364
+D:/Projects/Game/data\levels\Aesthetics\cut.mp3 1606060013.0503523
+D:/Projects/Game/data\levels\Aesthetics\level.pref 1618084845.6070013
+D:/Projects/Game/data\levels\Aesthetics\list menu.pref 1606060013.052346
+D:/Projects/Game/data\levels\Aesthetics\load-0.png 1606683452.5908072
+D:/Projects/Game/data\levels\Aesthetics\load.pref 1606683452.5928028
+D:/Projects/Game/data\levels\Aesthetics\load2.pref 1606060013.0553374

@@ -39,7 +39,7 @@ with open(os.path.join(game,"info.php"),"w") as f:
 ftp = FTP()
 ftp.connect(HOST,PORT)
 ftp.login(USER,PASS)
-ftp.cwd("domains/api.happy-x.ru/DogGame/updates/apk")
+ftp.cwd("domains/"+HOST_SITE+"/updates/apk")
 print("Загрузка",app)
 ftp.storbinary("STOR app%d.apk"%app_version,open(app,"rb"))
 ftp.cwd("..")

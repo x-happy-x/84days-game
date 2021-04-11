@@ -80,7 +80,7 @@ public class AndroidLauncher extends AndroidApplication {
             if (!(width == rect.width() && height == rect.height())){
                 width = rect.width();
                 height = rect.height();
-                view.onSizeChange(width,height);
+                view.onSizeChange(width, height); // Передаёт размеры в игру
             }
         });
     }

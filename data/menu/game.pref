@@ -1,11 +1,9 @@
-level0Path: menu
-level3Name: 3 УРОВЕНЬ
-level4Name: 4 УРОВЕНЬ
-level2Name: 2 УРОВЕНЬ
+version: 47
+levels: 3
 level1Name: 1 УРОВЕНЬ
-level4Path: levels/ThreeInRow
-version: 44
-level1Path: levels/AdventureDog
-levels: 4
-level2Path: levels/GuessTheCartoon
-level3Path: levels/MusicLevel
+level2Name: 2 УРОВЕНЬ
+level3Name: 3 УРОВЕНЬ
+level0Path: menu
+level1Path: levels/GuessTheCartoon
+level2Path: levels/MusicLevel
+level3Path: levels/Aesthetics

@@ -10,7 +10,7 @@ import ru.happy.game.adventuredog.MainGDX;
 public class User {
     SimpleDateFormat format;
     private int success, active, id, user, age, sex, lives, helps, tickets, version, flvl, olvl, dogType, perm;
-    private String name, mail, pass, regtime, lastdate, type, message, liveDate, helpDate, ticketDate;
+    private String name, mail, picture, pass, regtime, lastdate, type, message, liveDate, helpDate, ticketDate;
 
     public void set(User user) {
         this.success = user.success;
@@ -36,6 +36,7 @@ public class User {
         this.type = user.type;
         this.user = user.user;
         this.message = user.message;
+        this.picture = user.picture;
     }
 
     public void reset() {

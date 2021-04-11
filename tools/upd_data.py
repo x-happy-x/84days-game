@@ -77,7 +77,7 @@ if len(z.infolist()) > 0:
     ftp = FTP()
     ftp.connect(HOST,PORT)
     ftp.login(USER,PASS)
-    ftp.cwd("domains/api.happy-x.ru/DogGame/updates")
+    ftp.cwd("domains/"+HOST_SITE+"/updates")
     print("Загрузка",update_full_pack)
     ftp.storbinary("STOR full_pack.zip",open(update_full_pack,"rb"))
     print("Загрузка",update_small_pack)

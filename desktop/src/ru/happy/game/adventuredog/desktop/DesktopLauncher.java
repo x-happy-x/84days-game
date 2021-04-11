@@ -33,7 +33,7 @@ public class DesktopLauncher {
         // Конфиг игры
         Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
         // Путь файла с настройками
-        config.setPreferencesConfig("/Desktop/GameData/", Files.FileType.External);
+        config.setPreferencesConfig("../../data/", Files.FileType.Local);
         // Конфигурации дисплея
         int height = 500, width = 1000;
         config.setTitle("Adventure Dog");

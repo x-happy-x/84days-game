@@ -108,6 +108,13 @@ lock
  orig: 301, 310
  offset: 0,0
  index: -1
+locked_block
+ rotate: false
+ xy: 2005, 256
+ size: 6, 6
+ orig: 6, 6
+ offset: 0,0
+ index: -1
 locker
  rotate: false
  xy: 1112, 832

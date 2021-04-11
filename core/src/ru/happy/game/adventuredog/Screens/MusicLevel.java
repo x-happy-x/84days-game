@@ -71,7 +71,106 @@ public class MusicLevel implements Screen {
     private final Button exit;
     private final Button next;
     private final Button ok;
+    //
+    private final Rectangle fragment_pos;
+    private final NetTask netTask;
+    LoadedMusic musics;
+    String titleText, INFO_TEXT, menuText;
+    Vector2 cursor;
+    ArrayList<Float> rewindList;
+    ArrayList<String[]> quest;
+    String[] menuList;
+    Rectangle[] menu;
+    Color mainBG, pauseC, lose, win;
+    // Ресурсы
+    TextureAtlas texture;
+    Music music, cutting;
+    private NetTask task2;
+    private int musicN;
+    private int guessed;
+    private int musicCount;
+    private int selectedQuest;
+    private int selectedMenu;
+    InputAdapter menuInputAdapter = new InputAdapter() {
+        @Override
+        public boolean keyDown(int keycode) {
+            return super.keyDown(keycode);
+        }
 
+        @Override
+        public boolean mouseMoved(int screenX, int screenY) {
+            Vector2 v = toLocal(screenX, screenY);
+            for (int i = menuList.length - menu.length; i < menuList.length; i++) {
+                addRectArea(menu[i - (menuList.length - menu.length)], 8);
+                if (menu[i - (menuList.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
+                    selectedMenu = i;
+                    break;
+                }
+            }
+            return false;
+        }
+    };
+    private int scoreMusic;
+    private int newQuest;
+    private int errors;
+    private int musicL;
+    private float musicP;
+    private float pause_delta;
+    private float INFO_TIME;
+    private float end_delta;
+    private float menuText_delta;
+    // Установить слушатели для меню
+    // Состояния элементов
+    private int VIDEO_LOAD_STATE, MUSIC_LOAD_STATE, MUSIC_CUT_STATE, SCREEN_STATE;
+    private boolean infoLoaded;
+    private boolean isGuessed;
+    private boolean levelMultiplexer;
+    private boolean isChanging;
+    private boolean errorLoading;
+    private boolean typeSelected;
+    // Слушатель жестов
+    GestureDetector levelGestureDetector = new GestureDetector(new GestureDetector.GestureAdapter() {
+        @Override
+        public boolean longPress(float x, float y) {
+            return super.longPress(x, y);
+        }
+
+        @Override
+        public boolean tap(float x, float y, int count, int button) {
+            Vector2 v = toLocal(x, y);
+            v.set(v.x, MainGDX.HEIGHT - v.y);
+            if (typeSelected) {
+                if (input.isEdit()) {
+                    if (ok.isActive()) ok.isClick(v);
+                    if (input.isClick(v)) {
+                        input.setEdit(true);
+                        Gdx.input.setOnscreenKeyboardVisible(true);
+                    } else {
+                        if (game.view != null) Gdx.input.setOnscreenKeyboardVisible(false);
+                        else input.setEdit(false);
+                    }
+                } else if (!dialog.isClick(v)) {
+                    if (input.isClick(v)) {
+                        input.setEdit(true);
+                        Gdx.input.setOnscreenKeyboardVisible(true);
+                    } else if (input.isEdit()) {
+                        if (game.view != null) Gdx.input.setOnscreenKeyboardVisible(false);
+                        else input.setEdit(false);
+                    }
+                    if (ticket_btn.isActive()) ticket_btn.isClick(v);
+                    if (help_btn.isActive()) help_btn.isClick(v);
+                    if (ok.isActive()) ok.isClick(v);
+                    if (exit.isActive()) exit.isClick(v);
+                    if (slider.isClicked(v)) slider.setPaused(!slider.isPaused());
+                }
+            } else {
+                if (next.isActive()) next.isClick(v);
+                if (buttons != null) for (Button b : buttons) if (b.isActive()) b.isClick(v);
+            }
+            return false;
+        }
+    });
+    private boolean isPause;
     // Слушатели ввода
     InputAdapter levelInputAdapter = new InputAdapter() {
         @Override
@@ -113,68 +212,11 @@ public class MusicLevel implements Screen {
             return false;
         }
     };
-    InputAdapter menuInputAdapter = new InputAdapter() {
-        @Override
-        public boolean keyDown(int keycode) {
-            return super.keyDown(keycode);
-        }
-
-        @Override
-        public boolean mouseMoved(int screenX, int screenY) {
-            Vector2 v = toLocal(screenX, screenY);
-            for (int i = menuList.length - menu.length; i < menuList.length; i++) {
-                addRectArea(menu[i - (menuList.length - menu.length)], 8);
-                if (menu[i - (menuList.length - menu.length)].contains(v.x, MainGDX.HEIGHT - v.y)) {
-                    selectedMenu = i;
-                    break;
-                }
-            }
-            return false;
-        }
-    };
-
-    // Слушатель жестов
-    GestureDetector levelGestureDetector = new GestureDetector(new GestureDetector.GestureAdapter() {
-        @Override
-        public boolean longPress(float x, float y) {
-            return super.longPress(x, y);
-        }
-
-        @Override
-        public boolean tap(float x, float y, int count, int button) {
-            Vector2 v = toLocal(x, y);
-            v.set(v.x, MainGDX.HEIGHT - v.y);
-            if (typeSelected) {
-                if (input.isEdit()){
-                    if (ok.isActive()) ok.isClick(v);
-                    if (input.isClick(v)) {
-                        input.setEdit(true);
-                        Gdx.input.setOnscreenKeyboardVisible(true);
-                    } else {
-                        if (game.view != null) Gdx.input.setOnscreenKeyboardVisible(false);
-                        else input.setEdit(false);
-                    }
-                } else if (!dialog.isClick(v)) {
-                    if (input.isClick(v)) {
-                        input.setEdit(true);
-                        Gdx.input.setOnscreenKeyboardVisible(true);
-                    } else if (input.isEdit()) {
-                        if (game.view != null) Gdx.input.setOnscreenKeyboardVisible(false);
-                        else input.setEdit(false);
-                    }
-                    if (ticket_btn.isActive()) ticket_btn.isClick(v);
-                    if (help_btn.isActive()) help_btn.isClick(v);
-                    if (ok.isActive()) ok.isClick(v);
-                    if (exit.isActive()) exit.isClick(v);
-                    if (slider.isClicked(v)) slider.setPaused(!slider.isPaused());
-                }
-            } else {
-                if (next.isActive()) next.isClick(v);
-                if (buttons != null) for (Button b : buttons) if (b.isActive()) b.isClick(v);
-            }
-            return false;
-        }
-    });
+    private boolean isEnd;
+    private boolean isWin;
+    private boolean nextLoading;
+    private boolean usedHelp;
+    private boolean showedWarning;
     GestureDetector menuGestureDetector = new GestureDetector(new GestureDetector.GestureAdapter() {
         @Override
         public boolean tap(float x, float y, int count, int button) {
@@ -206,7 +248,7 @@ public class MusicLevel implements Screen {
                                     @Override
                                     public void onDownloadFailure(String msg) {
                                         menuText_delta = 3f;
-                                        menuText = "Не удалось отправить_"+msg;
+                                        menuText = "Не удалось отправить_" + msg;
                                     }
                                 });
                             if (!task2.isAlive()) {
@@ -315,40 +357,6 @@ public class MusicLevel implements Screen {
             return false;
         }
     });
-
-    //
-    private final Rectangle fragment_pos;
-    NetTask netTask;
-    int musicN, guessed, musicCount, selectedQuest, selectedMenu, scoreMusic, scoreAllMusic,
-            newQuest, errors, musicL;
-    float musicP, pause_delta, INFO_TIME, end_delta, menuText_delta;
-    LoadedMusic musics;
-    String titleText, INFO_TEXT, menuText;
-    Vector2 cursor;
-    ArrayList<Float> rewindList;
-    ArrayList<String[]> quest;
-    String[] menuList;
-    Rectangle[] menu;
-    Color mainBG, pauseC, lose, win;
-    // Ресурсы
-    TextureAtlas texture;
-    Music music, cutting;
-    // Установить слушатели для меню
-    // Состояния элементов
-    private int VIDEO_LOAD_STATE, MUSIC_LOAD_STATE, MUSIC_CUT_STATE, SCREEN_STATE;
-    private NetTask task2;
-    private boolean infoLoaded;
-    private boolean isGuessed;
-    private boolean levelMultiplexer;
-    private boolean isChanging;
-    private boolean errorLoading;
-    private boolean typeSelected;
-    private boolean isPause;
-    private boolean isEnd;
-    private boolean isWin;
-    private boolean nextLoading;
-    private boolean usedHelp;
-    private boolean showedWarning;
     private boolean video_showing;
 
     public MusicLevel(MainGDX mainGDX) {
@@ -403,7 +411,6 @@ public class MusicLevel implements Screen {
                         MUSIC_LOAD_STATE = 3;
                         errors = 0;
                         showMessage(managerV.find("WIN", (scoreMusic / 20) + ""), 3f);
-                        scoreAllMusic += scoreMusic;
                         guessed++;
                     } else {
                         errors++;
@@ -533,12 +540,12 @@ public class MusicLevel implements Screen {
             @Override
             public void isClick() {
                 if (MUSIC_LOAD_STATE == 2) {
-                    if (world.getHelp()<=0){
-                        showMessage(managerV.getRandString("NO HELP"),2f);
+                    if (world.getHelp() <= 0) {
+                        showMessage(managerV.getRandString("NO HELP"), 2f);
                         return;
                     }
                     if (!usedHelp) dialog.open();
-                    else showMessage(managerV.getRandString("USED HELP"),2f);
+                    else showMessage(managerV.getRandString("USED HELP"), 2f);
                     /*if (usedHelp) {
                         showText_delta = 2f;
                         showedText = "Вы уже воспользовались подсказкой";
@@ -621,7 +628,7 @@ public class MusicLevel implements Screen {
                             musicCount++;
                         }
                         netTask.hardRun = true;
-                        netTask.loadFiles("musics/", "cache", mFiles.toArray());
+                        netTask.loadFiles(musics.path, "cache", mFiles.toArray());
                     }
                 }
             }
@@ -675,7 +682,8 @@ public class MusicLevel implements Screen {
         TextureRegion bg = texture.findRegion("white_btn"),
                 button = texture.findRegion("green_btn");
         Color buttonColor = Color.WHITE, textColor = Color.BLACK;
-        dialog = (Dialog) new Dialog(bg, new Button.Action() {}).setSize(MainGDX.WIDTH / 2.4f, 310).center();
+        dialog = (Dialog) new Dialog(bg, new Button.Action() {
+        }).setSize(MainGDX.WIDTH / 2.4f, 310).center();
         // Диалог
         {
             dialog.addElement(
@@ -930,7 +938,6 @@ public class MusicLevel implements Screen {
 
     }
 
-    // Установить слушатели для уровня
 
     @Override
     public void hide() {
@@ -977,7 +984,7 @@ public class MusicLevel implements Screen {
                             b.setActive(false);
                             b.move(b.getX(), -b.getY(), b.getWidth(), b.getHeight(), 1);
                         }
-                        netTask.GET("", "mode", "5", "type", s.substring(4));
+                        netTask.API(NetTask.LEVEL_GUESS_MUSIC, "type", s.substring(4), "age", "" + game.user.getAge());
                     } else {
                         newQuest = Integer.parseInt(s);
                         isChanging = true;
@@ -1137,18 +1144,18 @@ public class MusicLevel implements Screen {
                 MainGDX.write("Artist check: " + artist + " - " + x);
                 if (x.contains(artist)) {
                     int i = x.indexOf(artist);
-                    x = x.substring(0,i)+x.substring(i + artist.length());
+                    x = x.substring(0, i) + x.substring(i + artist.length());
                     break;
                 }
-                scoreMusic -= 50/artists.length;
+                scoreMusic -= 50 / artists.length;
             }
         }
-        for (String title: selectedQuest>2?titles:artists) {
+        for (String title : selectedQuest > 2 ? titles : artists) {
             title = title.trim();
             MainGDX.write("Title check: " + title + " - " + x);
             if (title.equalsIgnoreCase(x.trim()))
                 return true;
-            scoreMusic -= 50/(selectedQuest>2?titles:artists).length;
+            scoreMusic -= 50 / (selectedQuest > 2 ? titles : artists).length;
         }
         return false;
     }
@@ -1245,8 +1252,7 @@ public class MusicLevel implements Screen {
             public void onCompletionAction() {
                 music.stop();
                 slider.setPaused(true);
-                String url = musics.musics.get(musicN).video.replace("{SITE}", NetTask.site);
-                game.video.loadVideo(url,
+                game.video.loadVideo(musics.musics.get(musicN).video,
                         (selectedQuest > 2 ? musics.musics.get(musicN).title : musics.musics.get(musicN).artist).split("\n")[0],
                         (selectedQuest > 2 ? musics.musics.get(musicN).artist : musics.musics.get(musicN).title).split("\n")[0]);
             }
@@ -1256,8 +1262,8 @@ public class MusicLevel implements Screen {
         //game.video.setBounds(v1.x,Gdx.graphics.getHeight()-v1.y-v2.y,v2.x,v2.y);
     }
 
-    private void useHelp(int variant){
-        switch (variant){
+    private void useHelp(int variant) {
+        switch (variant) {
             case 1:
                 if (world.getHelp() > 1) {
                     showMessage(musics.musics.get(musicN).title.split("\n")[0], 5f);
@@ -1266,16 +1272,16 @@ public class MusicLevel implements Screen {
                 break;
             case 2:
                 if (world.getHelp() > 1) {
-                    showMessage(musics.musics.get(musicN).artist.split("\n")[0],5f);
+                    showMessage(musics.musics.get(musicN).artist.split("\n")[0], 5f);
                     world.useHelp(2);
                 } else showMessage("У вас не достаточно подсказок", 5f);
                 break;
             case 3:
-                showMessage((MathUtils.random(1)==0?musics.musics.get(musicN).title:musics.musics.get(musicN).artist).split("\n")[0],5f);
+                showMessage((MathUtils.random(1) == 0 ? musics.musics.get(musicN).title : musics.musics.get(musicN).artist).split("\n")[0], 5f);
                 world.useHelp(1);
                 break;
             case 4:
-                showMessage(managerV.find("HELP",assets.getLevel()+""),5f);
+                showMessage(managerV.find("HELP", assets.getLevel() + ""), 5f);
                 MUSIC_CUT_STATE = -1;
                 world.useHelp(1);
                 break;
