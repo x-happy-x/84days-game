@@ -1,0 +1,201 @@
+graphic-0.png
+size: 2048, 2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+ask
+ rotate: false
+ xy: 492, 837
+ size: 190, 256
+ orig: 190, 256
+ offset: 0,0
+ index: -1
+blueL_btn
+ rotate: false
+ xy: 0, 271
+ size: 310, 310
+ orig: 310, 310
+ offset: 0,0
+ index: -1
+blue_btn
+ rotate: false
+ xy: 1582, 0
+ size: 310, 310
+ orig: 310, 310
+ offset: 0,0
+ index: -1
+close
+ rotate: false
+ xy: 1712, 315
+ size: 138, 138
+ orig: 138, 138
+ offset: 0,0
+ index: -1
+darkgray2_btn
+ rotate: false
+ xy: 0, 586
+ size: 256, 256
+ orig: 256, 256
+ offset: 0,0
+ index: -1
+darkgray_btn
+ rotate: false
+ xy: 1451, 576
+ size: 256, 256
+ orig: 256, 256
+ offset: 0,0
+ index: -1
+done
+ rotate: false
+ xy: 1897, 286
+ size: 138, 138
+ orig: 138, 138
+ offset: 0,0
+ index: -1
+editIcon
+ rotate: false
+ xy: 1897, 143
+ size: 138, 138
+ orig: 138, 138
+ offset: 0,0
+ index: -1
+error
+ rotate: false
+ xy: 1897, 0
+ size: 138, 138
+ orig: 138, 138
+ offset: 0,0
+ index: -1
+green_btn
+ rotate: false
+ xy: 1267, 0
+ size: 310, 310
+ orig: 310, 310
+ offset: 0,0
+ index: -1
+help
+ rotate: false
+ xy: 1182, 315
+ size: 264, 266
+ orig: 264, 266
+ offset: 0,0
+ index: -1
+live
+ rotate: false
+ xy: 911, 315
+ size: 266, 266
+ orig: 266, 266
+ offset: 0,0
+ index: -1
+loadblue
+ rotate: false
+ xy: 1712, 601
+ size: 137, 138
+ orig: 137, 138
+ offset: 0,0
+ index: -1
+loadwhite
+ rotate: false
+ xy: 1712, 458
+ size: 137, 138
+ orig: 137, 138
+ offset: 0,0
+ index: -1
+lock
+ rotate: false
+ xy: 315, 315
+ size: 301, 310
+ orig: 301, 310
+ offset: 0,0
+ index: -1
+locked_block
+ rotate: false
+ xy: 1855, 315
+ size: 6, 6
+ orig: 6, 6
+ offset: 0,0
+ index: -1
+locker
+ rotate: false
+ xy: 1712, 744
+ size: 214, 214
+ orig: 214, 214
+ offset: 0,0
+ index: -1
+music_bg
+ rotate: false
+ xy: 621, 576
+ size: 256, 256
+ orig: 256, 256
+ offset: 0,0
+ index: -1
+music_bg2
+ rotate: false
+ xy: 1451, 315
+ size: 256, 256
+ orig: 256, 256
+ offset: 0,0
+ index: -1
+orange_btn
+ rotate: false
+ xy: 952, 0
+ size: 310, 310
+ orig: 310, 310
+ offset: 0,0
+ index: -1
+pause
+ rotate: false
+ xy: 882, 586
+ size: 245, 256
+ orig: 245, 256
+ offset: 0,0
+ index: -1
+pause2
+ rotate: false
+ xy: 1855, 429
+ size: 188, 256
+ orig: 188, 256
+ offset: 0,0
+ index: -1
+play
+ rotate: false
+ xy: 261, 630
+ size: 226, 256
+ orig: 226, 256
+ offset: 0,0
+ index: -1
+play2
+ rotate: false
+ xy: 621, 315
+ size: 285, 256
+ orig: 285, 256
+ offset: 0,0
+ index: -1
+play_bg
+ rotate: false
+ xy: 1132, 586
+ size: 239, 256
+ orig: 239, 256
+ offset: 0,0
+ index: -1
+red_btn
+ rotate: false
+ xy: 637, 0
+ size: 310, 310
+ orig: 310, 310
+ offset: 0,0
+ index: -1
+ticket
+ rotate: false
+ xy: 0, 0
+ size: 317, 266
+ orig: 317, 266
+ offset: 0,0
+ index: -1
+white_btn
+ rotate: false
+ xy: 322, 0
+ size: 310, 310
+ orig: 310, 310
+ offset: 0,0
+ index: -1

@@ -6,14 +6,14 @@ repeat: none
 loadbg
  rotate: false
  xy: 0, 0
- size: 1280, 720
- orig: 1280, 720
+ size: 1145, 720
+ orig: 1145, 720
  offset: 0,0
  index: -1
-dog
+note
  rotate: false
- xy: 1285, 0
- size: 473, 500
- orig: 473, 500
+ xy: 1150, 0
+ size: 300, 300
+ orig: 300, 300
  offset: 0,0
  index: -1

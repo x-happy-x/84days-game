@@ -37,11 +37,11 @@ def unpackAll(path_):
                 print("Другой файл...", i)
 
 def tmpUpdate(fn,height=246,margin=5):
-    x = Image(fn)
+    x = Image("notLoaded/"+fn)
     x.trim()
     x.setSize(height=height)
     x.addMargin(margin)
-    x.save(path="cache",fileName=fn)
+    x.save(path="notLoaded/cache",fileName=fn)
 
 def menuUpdate():
     a = ["square_darkgray_btn.png","gray1_btn.png",
@@ -55,12 +55,13 @@ def menuUpdate():
     createTexture("textures",size=2048,img=img,atlasName="graphic")
     
 def bgUpdate():
-    a = ["loadbg.png","dog.png"]
-    tmpUpdate(a[1],500,0)
+    a = ["loadbg.png","note.png"]
+    tmpUpdate(a[1],300,0)
     tmpUpdate(a[0],720,0)
     img = []
     for i in a:
-        img.append(Image("cache/"+i))
-    createTexture("textures",size=2048,img=img,atlasName="load",padding=5);
-menuUpdate()
+        img.append(Image("notLoaded/cache/"+i))
+    createTexture("notLoaded/textures",size=2048,img=img,atlasName="load",padding=5);
+#menuUpdate()
+bgUpdate()
 #getImagesFromTexture("")

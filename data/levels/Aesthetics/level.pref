@@ -1,0 +1,11 @@
+loadFiles: 2
+classLoad: Aesthetics
+load0Name: load
+load0Path: load.pref
+load0Type: TA
+load1Name: background
+load1Path: bg.png
+load1Type: T
+hintCount: 2
+hint0: Загрузка...
+hint1: Тык дыг, тык дык, тык дыг

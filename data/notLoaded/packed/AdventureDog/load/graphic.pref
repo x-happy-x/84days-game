@@ -1,0 +1,26 @@
+graphic-0.png
+size: 2048, 2048
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+leash
+ rotate: false
+ xy: 1169, 0
+ size: 2, 310
+ orig: 2, 310
+ offset: 0,0
+ index: -1
+pesik
+ rotate: false
+ xy: 682, 0
+ size: 482, 310
+ orig: 482, 310
+ offset: 0,0
+ index: -1
+text
+ rotate: false
+ xy: 0, 0
+ size: 677, 310
+ orig: 677, 310
+ offset: 0,0
+ index: -1

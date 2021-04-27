@@ -1,0 +1,10 @@
+id: progressbar
+centerx: true
+bottom: 15
+width: 65
+color: #E91E63
+
+id: dog
+centerx: true
+bottom: 0
+height: 80

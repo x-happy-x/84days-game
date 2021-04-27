@@ -26,7 +26,7 @@ import ru.happy.game.adventuredog.Tools.NetTask;
 
 public class GameWorld extends Stage {
 
-    public static String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890 .,:;_¡!¿?\"'+-*/()[]={}%@";
+    public static String FONT_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя1234567890 .…,:;_¡!¿?\"'+-*/()[]={}%@";
     public InputMultiplexer multiplexer;
     public int fontSize = 20;
     public String out;
