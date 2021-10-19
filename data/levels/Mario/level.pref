@@ -1,0 +1,10 @@
+classLoad: NoMario
+loadFiles: 2
+load0Name: load
+load0Path: load.pref
+load0Type: TA
+load1Name: graphic
+load1Path: ../../objects/Dog/graphic.pref
+load1Type: TA
+hintCount: 1
+hint1: Сколько времени вам потребуется, чтобы пройти двухминутный уровень?

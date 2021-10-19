@@ -13,6 +13,7 @@ import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
 
 public class Dog {
+
     OrthographicCamera camera;
     Map<String, Map<String, String>> property;
     TextureAtlas atlas;

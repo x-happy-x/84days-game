@@ -1,0 +1,27 @@
+id: bg
+bg: color
+colors: #ffffff
+
+id: progressbar
+centerx: true
+bottom: 15
+width: 65
+color: #f34529
+
+id: text
+top: 10
+right: -2
+height: 30
+
+id: pesik
+right: 100
+centery: true
+height: 50
+endx: 100
+
+id: leash
+rightOf: pesik
+offset: 5
+height: 50
+width: 120
+endx: 100

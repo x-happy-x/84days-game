@@ -1,4 +1,4 @@
-version: 49
+version: 50
 levels: 12
 level1Name: 1 УРОВЕНЬ
 level2Name: 2 УРОВЕНЬ
@@ -10,8 +10,8 @@ level7Name: 7 УРОВЕНЬ
 level8Name: 8 УРОВЕНЬ
 level9Name: 9 УРОВЕНЬ
 level10Name: 10 УРОВЕНЬ
-level11Name: 9 УРОВЕНЬ
-level12Name: 10 УРОВЕНЬ
+level11Name: 11 УРОВЕНЬ
+level12Name: Map Studio
 level0Path: menu
 level1Path: levels/GuessTheCartoon
 level2Path: levels/MusicLevel
@@ -24,4 +24,4 @@ level8Path: levels/Aesthetics
 level9Path: levels/Aesthetics
 level10Path: levels/Aesthetics
 level11Path: levels/Aesthetics
-level12Path: levels/Aesthetics
+level12Path: levels/MapStudio

@@ -1,6 +1,6 @@
 <?php
-	$app_version = 29;
-	$version = 49;
+	$app_version = 30;
+	$version = 50;
 	$state = 1;
 	$message = "None";
 ?>

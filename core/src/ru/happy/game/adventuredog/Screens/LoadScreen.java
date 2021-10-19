@@ -19,6 +19,7 @@ import java.util.Map;
 import ru.happy.game.adventuredog.Anim.ScreenAnim;
 import ru.happy.game.adventuredog.MainGDX;
 import ru.happy.game.adventuredog.Obj.GameWorld;
+import ru.happy.game.adventuredog.Studio.MapCreator;
 import ru.happy.game.adventuredog.Tools.AssetsTool;
 
 public class LoadScreen implements Screen {
@@ -80,6 +81,9 @@ public class LoadScreen implements Screen {
                 break;
             case "Auth":
                 game.setScreen(new Auth(game));
+                break;
+            case "Studio":
+                game.setScreen(new MapCreator(game));
                 break;
         }
     }

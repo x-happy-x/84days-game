@@ -1,5 +1,8 @@
 package ru.happy.game.adventuredog;
 
+import static ru.happy.game.adventuredog.Tools.AssetsTool.encodePlatform;
+import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -36,13 +39,10 @@ import ru.happy.game.adventuredog.Tools.NetTask;
 import ru.happy.game.adventuredog.Tools.ValuesManager;
 import ru.happy.game.adventuredog.UI.Layout;
 
-import static ru.happy.game.adventuredog.Tools.AssetsTool.encodePlatform;
-import static ru.happy.game.adventuredog.Tools.AssetsTool.getFile;
-
 public class MainGDX extends Game {
 
     // Параметры экрана
-    public static final int APP_VERSION = 30;
+    public static final int APP_VERSION = 31;
     private static final int START_LEVEL = 0;
     public static int WIDTH = 1000,
             HEIGHT = 500,
@@ -222,7 +222,7 @@ public class MainGDX extends Game {
                 draw();
                 bg.draw(getBatch());
                 String progressText = state;
-                float y = MainGDX.HEIGHT / 4f;
+                float y = MainGDX.HEIGHT / 6f;
                 for (String s : progressText.split("_")) {
                     world.setText(s, 1f, MainGDX.WIDTH / 2f, y, Color.WHITE, true, GameWorld.FONTS.SMALL);
                     y -= world.getTextSize("1", 1f, GameWorld.FONTS.SMALL)[1] * 1.7f;

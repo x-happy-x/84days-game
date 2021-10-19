@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AssetsManagerX {
+
     // Карты для хранения свойств
     Map<Integer, Map<String, String>> prop;
     Map<Integer, ArrayList<String>> levels;

@@ -20,10 +20,10 @@
         tools:targetApi="o">
         <activity
             android:name="ru.happy.game.adventuredog.AndroidLauncher"
-            android:label="@string/app_name" 
             android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustPan"
-            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout">
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

@@ -1,14 +1,11 @@
 package ru.happy.game.adventuredog;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -107,7 +104,8 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
 
     @Override
     public void loadVideo(String url, String title, String subtitle){
-        activity.runOnUiThread(()->{
+        MainGDX.write("VIDEO LOAD: " + url);
+        activity.runOnUiThread(() -> {
             this.title.setText(title);
             this.subtitle.setText(subtitle);
             this.message.setText("Загрузка...");
@@ -153,18 +151,17 @@ public class VideoPlayerControl implements VideoPlayer, Player.EventListener {
         int minute = (int) (((duration-position)/1000)/60);
         int second = (int) ((duration-minute*1000*60-position)/1000);
         activity.runOnUiThread(() -> {
-            if (min.getVisibility() == View.GONE){
+            if (min.getVisibility() == View.GONE) {
                 min.setVisibility(View.VISIBLE);
                 sec.setVisibility(View.VISIBLE);
             }
-            if (skip.getVisibility() == View.GONE && position >= 15000)
+            if (skip.getVisibility() == View.GONE && position >= 0)
                 skip.setVisibility(View.VISIBLE);
             min.setText(String.format(Locale.getDefault(),"%02d",minute));
             sec.setText(String.format(Locale.getDefault(),"%02d",second));
         });
     }
 
-    @Override
     public void onPlayerError(ExoPlaybackException error) {
         activity.runOnUiThread(() -> message.setText(error.getLocalizedMessage()));
         if (listener != null) listener.onError(error.getLocalizedMessage());

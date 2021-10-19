@@ -1,7 +1,8 @@
-from zipfile import ZipFile
-from ftplib import FTP
-from server import *
 import os
+from ftplib import FTP
+from zipfile import ZipFile
+
+from server import *
 
 # Локальные параметры
 version = "1"
@@ -107,5 +108,3 @@ else:
     x.close()
     os.remove(update_full_pack+"_temp")
     os.remove(update_small_pack+"_temp")
-
-input("Нажмите ENTER чтобы завершить")

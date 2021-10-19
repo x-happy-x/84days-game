@@ -2,18 +2,18 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 <entry key="name">Абдулла</entry>
-<entry key="helps">32767</entry>
-<entry key="live">9998</entry>
-<entry key="tickets">32655</entry>
+<entry key="helps">32763</entry>
+<entry key="live">9990</entry>
+<entry key="tickets">32653</entry>
 <entry key="opened_level">13</entry>
 <entry key="perm">0</entry>
 <entry key="finished_level">2</entry>
 <entry key="help">48</entry>
 <entry key="mail">m.m.abdul@mail.ru</entry>
 <entry key="uid">104</entry>
-<entry key="ticket">32655</entry>
-<entry key="lives">9998</entry>
+<entry key="ticket">32653</entry>
 <entry key="sync">true</entry>
+<entry key="lives">9990</entry>
 <entry key="selected_dog">0</entry>
 <entry key="pass">1234</entry>
 </properties>

@@ -1,0 +1,6 @@
+@ECHO OFF
+echo Update data...
+python ./tools/upd_data.py
+echo Update app...
+python ./tools/upd_app.py
+@ECHO ON
